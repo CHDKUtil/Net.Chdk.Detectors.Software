@@ -42,7 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileSystemSoftwareDetector.cs" />
     <Compile Include="IProductDetector.cs" />
+    <Compile Include="ISoftwareDetector.cs" />
+    <Compile Include="MetadataSoftwareDetector.cs" />
     <Compile Include="SoftwareDetector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
