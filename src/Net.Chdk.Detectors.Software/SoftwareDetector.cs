@@ -1,4 +1,5 @@
-﻿using Net.Chdk.Model.Software;
+﻿using Microsoft.Extensions.Logging;
+using Net.Chdk.Model.Software;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,11 +9,11 @@ namespace Net.Chdk.Detectors.Software
     {
         private IEnumerable<ISoftwareDetector> SoftwareDetectors { get; }
 
-        public SoftwareDetector(IEnumerable<IProductDetector> productDetectors)
+        public SoftwareDetector(IEnumerable<IProductDetector> productDetectors, ILoggerFactory loggerFactory)
         {
             SoftwareDetectors = new ISoftwareDetector[]
             {
-                new MetadataSoftwareDetector(),
+                new MetadataSoftwareDetector(loggerFactory),
                 new FileSystemSoftwareDetector(productDetectors)
             };
         }
