@@ -1,6 +1,4 @@
 ﻿using Net.Chdk.Model.Software;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,10 +27,9 @@ namespace Net.Chdk.Detectors.Software
             if (!File.Exists(softwarePath))
                 return null;
 
-            using (var reader = File.OpenText(softwarePath))
-            using (var jsonReader = new JsonTextReader(reader))
+            using (var reader = File.OpenRead(softwarePath))
             {
-                return Deserialize<SoftwareInfo>(jsonReader);
+                return JsonObject.Deserialize<SoftwareInfo>(reader);
             }
         }
 
@@ -59,16 +56,6 @@ namespace Net.Chdk.Detectors.Software
             return ProductDetectors
                 .Select(d => d.GetProduct(driveLetter))
                 .FirstOrDefault(p => p != null);
-        }
-
-        private static T Deserialize<T>(JsonTextReader jsonReader)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-            var serializer = JsonSerializer.CreateDefault(settings);
-            return serializer.Deserialize<T>(jsonReader);
         }
     }
 }
