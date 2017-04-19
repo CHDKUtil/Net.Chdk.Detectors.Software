@@ -12,9 +12,9 @@ namespace Net.Chdk.Detectors.Software
             if (!File.Exists(softwarePath))
                 return null;
 
-            using (var reader = File.OpenRead(softwarePath))
+            using (var stream = File.OpenRead(softwarePath))
             {
-                return JsonObject.Deserialize<SoftwareInfo>(reader);
+                return JsonObject.Deserialize<SoftwareInfo>(stream);
             }
         }
     }
