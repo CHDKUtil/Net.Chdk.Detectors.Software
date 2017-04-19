@@ -1,0 +1,1 @@
+# Net.Chdk.Detectors.Software
