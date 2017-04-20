@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 
 namespace Net.Chdk.Detectors.Software
@@ -10,9 +11,9 @@ namespace Net.Chdk.Detectors.Software
         {
         }
 
-        public SoftwareInfo GetSoftware(string driveLetter)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo)
         {
-            return GetValue(driveLetter);
+            return GetValue(cardInfo.DriveLetter);
         }
 
         protected override string FileName => "SOFTWARE.JSN";

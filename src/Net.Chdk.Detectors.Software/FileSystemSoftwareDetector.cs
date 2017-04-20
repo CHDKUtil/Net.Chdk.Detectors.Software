@@ -1,4 +1,5 @@
-﻿using Net.Chdk.Model.Software;
+﻿using Net.Chdk.Model.Card;
+using Net.Chdk.Model.Software;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,23 +17,23 @@ namespace Net.Chdk.Detectors.Software
             ProductDetectors = productDetectors;
         }
 
-        public SoftwareInfo GetSoftware(string driveLetter)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo)
         {
-            var diskbootPath = Path.Combine(driveLetter, "DISKBOOT.BIN");
+            var diskbootPath = Path.Combine(cardInfo.DriveLetter, "DISKBOOT.BIN");
             if (!File.Exists(diskbootPath))
                 return null;
 
             return new SoftwareInfo
             {
                 Version = Version,
-                Product = GetProduct(driveLetter),
+                Product = GetProduct(cardInfo),
             };
         }
 
-        private ProductInfo GetProduct(string driveLetter)
+        private ProductInfo GetProduct(CardInfo cardInfo)
         {
             return ProductDetectors
-                .Select(d => d.GetProduct(driveLetter))
+                .Select(d => d.GetProduct(cardInfo))
                 .FirstOrDefault(p => p != null);
         }
     }

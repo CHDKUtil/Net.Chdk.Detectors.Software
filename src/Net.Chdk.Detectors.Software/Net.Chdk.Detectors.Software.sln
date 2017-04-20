@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Detectors.Core", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Detectors.Software.Core", "..\..\..\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core.csproj", "{D385AB93-0DB5-45AA-994A-5E4B671BEF40}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Model.Card", "..\..\..\Net.Chdk.Model.Card\src\Net.Chdk.Model.Card\Net.Chdk.Model.Card.csproj", "{A41D61FE-2FB8-4892-AC7D-ECEE7E61C637}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{D385AB93-0DB5-45AA-994A-5E4B671BEF40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D385AB93-0DB5-45AA-994A-5E4B671BEF40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D385AB93-0DB5-45AA-994A-5E4B671BEF40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A41D61FE-2FB8-4892-AC7D-ECEE7E61C637}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A41D61FE-2FB8-4892-AC7D-ECEE7E61C637}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A41D61FE-2FB8-4892-AC7D-ECEE7E61C637}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A41D61FE-2FB8-4892-AC7D-ECEE7E61C637}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

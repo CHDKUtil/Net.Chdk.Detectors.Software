@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +19,10 @@ namespace Net.Chdk.Detectors.Software
             };
         }
 
-        public SoftwareInfo GetSoftware(string driveLetter)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo)
         {
             return SoftwareDetectors
-                .Select(d => d.GetSoftware(driveLetter))
+                .Select(d => d.GetSoftware(cardInfo))
                 .FirstOrDefault(s => s != null);
         }
     }
