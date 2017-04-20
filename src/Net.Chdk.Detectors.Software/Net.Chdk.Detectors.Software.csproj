@@ -65,6 +65,10 @@
       <Project>{6C183A9C-30C1-47E5-9016-48890EC8ABA2}</Project>
       <Name>Net.Chdk.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Net.Chdk.Detectors.Core\src\Net.Chdk.Detectors.Core\Net.Chdk.Detectors.Core.csproj">
+      <Project>{B5899F00-8BD7-4776-A677-86177A796146}</Project>
+      <Name>Net.Chdk.Detectors.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Net.Chdk.Model.Software\src\Net.Chdk.Model.Software\Net.Chdk.Model.Software.csproj">
       <Project>{7F492AD5-C9E5-4E13-9587-D0B88BA8D209}</Project>
       <Name>Net.Chdk.Model.Software</Name>

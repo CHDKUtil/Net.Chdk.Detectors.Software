@@ -1,31 +1,20 @@
 ﻿using Microsoft.Extensions.Logging;
 using Net.Chdk.Model.Software;
-using System.IO;
 
 namespace Net.Chdk.Detectors.Software
 {
-    sealed class MetadataSoftwareDetector : ISoftwareDetector
+    sealed class MetadataSoftwareDetector : MetadataDetector<MetadataSoftwareDetector, SoftwareInfo>, ISoftwareDetector
     {
-        public ILogger Logger { get; }
-
         public MetadataSoftwareDetector(ILoggerFactory loggerFactory)
+            : base(loggerFactory)
         {
-            Logger = loggerFactory.CreateLogger<MetadataSoftwareDetector>();
         }
 
         public SoftwareInfo GetSoftware(string driveLetter)
         {
-            var metadataPath = Path.Combine(driveLetter, "METADATA");
-            var softwarePath = Path.Combine(metadataPath, "SOFTWARE.JSN");
-            if (!File.Exists(softwarePath))
-                return null;
-
-            Logger.LogInformation("Reading {0}", softwarePath);
-
-            using (var stream = File.OpenRead(softwarePath))
-            {
-                return JsonObject.Deserialize<SoftwareInfo>(stream);
-            }
+            return GetValue(driveLetter);
         }
+
+        protected override string FileName => "SOFTWARE.JSN";
     }
 }
