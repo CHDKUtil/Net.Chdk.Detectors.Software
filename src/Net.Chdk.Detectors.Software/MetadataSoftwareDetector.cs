@@ -13,7 +13,7 @@ namespace Net.Chdk.Detectors.Software
 
         public SoftwareInfo GetSoftware(CardInfo cardInfo)
         {
-            return GetValue(cardInfo.DriveLetter);
+            return GetValue(cardInfo);
         }
 
         protected override string FileName => "SOFTWARE.JSN";
