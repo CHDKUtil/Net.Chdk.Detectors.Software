@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Core", "..\..\..\N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Detectors.Core", "..\..\..\Net.Chdk.Detectors.Core\src\Net.Chdk.Detectors.Core\Net.Chdk.Detectors.Core.csproj", "{B5899F00-8BD7-4776-A677-86177A796146}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Detectors.Software.Core", "..\..\..\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core.csproj", "{D385AB93-0DB5-45AA-994A-5E4B671BEF40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{B5899F00-8BD7-4776-A677-86177A796146}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5899F00-8BD7-4776-A677-86177A796146}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5899F00-8BD7-4776-A677-86177A796146}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D385AB93-0DB5-45AA-994A-5E4B671BEF40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D385AB93-0DB5-45AA-994A-5E4B671BEF40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D385AB93-0DB5-45AA-994A-5E4B671BEF40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D385AB93-0DB5-45AA-994A-5E4B671BEF40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

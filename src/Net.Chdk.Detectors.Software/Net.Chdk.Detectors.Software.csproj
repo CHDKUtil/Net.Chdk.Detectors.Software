@@ -54,8 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileSystemSoftwareDetector.cs" />
-    <Compile Include="IProductDetector.cs" />
-    <Compile Include="ISoftwareDetector.cs" />
     <Compile Include="MetadataSoftwareDetector.cs" />
     <Compile Include="SoftwareDetector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -68,6 +66,10 @@
     <ProjectReference Include="..\..\..\Net.Chdk.Detectors.Core\src\Net.Chdk.Detectors.Core\Net.Chdk.Detectors.Core.csproj">
       <Project>{B5899F00-8BD7-4776-A677-86177A796146}</Project>
       <Name>Net.Chdk.Detectors.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core.csproj">
+      <Project>{D385AB93-0DB5-45AA-994A-5E4B671BEF40}</Project>
+      <Name>Net.Chdk.Detectors.Software.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Net.Chdk.Model.Software\src\Net.Chdk.Model.Software\Net.Chdk.Model.Software.csproj">
       <Project>{7F492AD5-C9E5-4E13-9587-D0B88BA8D209}</Project>
