@@ -19,8 +19,7 @@ namespace Net.Chdk.Detectors.Software
 
         public SoftwareInfo GetSoftware(CardInfo cardInfo)
         {
-            var rootPath = cardInfo.GetRootPath();
-            var diskbootPath = Path.Combine(rootPath, "DISKBOOT.BIN");
+            string diskbootPath = cardInfo.GetDiskbootPath();
             if (!File.Exists(diskbootPath))
                 return null;
 
