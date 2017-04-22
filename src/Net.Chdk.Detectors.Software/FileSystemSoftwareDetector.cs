@@ -35,7 +35,7 @@ namespace Net.Chdk.Detectors.Software
             };
         }
 
-        private ProductInfo GetProduct(CardInfo cardInfo)
+        private SoftwareProductInfo GetProduct(CardInfo cardInfo)
         {
             return ProductDetectors
                 .Select(d => d.GetProduct(cardInfo))
