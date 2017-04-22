@@ -8,15 +8,11 @@ namespace Net.Chdk.Detectors.Software
 {
     public sealed class SoftwareDetector : ISoftwareDetector
     {
-        private IEnumerable<ISoftwareDetector> SoftwareDetectors { get; }
+        private IEnumerable<IInnerSoftwareDetector> SoftwareDetectors { get; }
 
-        public SoftwareDetector(IEnumerable<IProductDetector> productDetectors, ILoggerFactory loggerFactory)
+        public SoftwareDetector(IEnumerable<IInnerSoftwareDetector> softwareDetectors, ILoggerFactory loggerFactory)
         {
-            SoftwareDetectors = new ISoftwareDetector[]
-            {
-                new MetadataSoftwareDetector(loggerFactory),
-                new FileSystemSoftwareDetector(productDetectors)
-            };
+            SoftwareDetectors = softwareDetectors;
         }
 
         public SoftwareInfo GetSoftware(CardInfo cardInfo)

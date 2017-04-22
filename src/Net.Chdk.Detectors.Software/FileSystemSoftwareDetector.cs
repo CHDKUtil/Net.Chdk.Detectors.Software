@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Net.Chdk.Detectors.Software
 {
-    sealed class FileSystemSoftwareDetector : ISoftwareDetector
+    sealed class FileSystemSoftwareDetector : IInnerSoftwareDetector
     {
         private static string Version => "1.0";
 

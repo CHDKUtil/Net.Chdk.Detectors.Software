@@ -4,7 +4,7 @@ using Net.Chdk.Model.Software;
 
 namespace Net.Chdk.Detectors.Software
 {
-    sealed class MetadataSoftwareDetector : MetadataDetector<MetadataSoftwareDetector, SoftwareInfo>, ISoftwareDetector
+    sealed class MetadataSoftwareDetector : MetadataDetector<MetadataSoftwareDetector, SoftwareInfo>, IInnerSoftwareDetector
     {
         public MetadataSoftwareDetector(ILoggerFactory loggerFactory)
             : base(loggerFactory)
