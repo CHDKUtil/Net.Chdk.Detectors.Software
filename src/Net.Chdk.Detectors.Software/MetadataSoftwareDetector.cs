@@ -13,6 +13,8 @@ namespace Net.Chdk.Detectors.Software
 
         public SoftwareInfo GetSoftware(CardInfo cardInfo)
         {
+            Logger.LogTrace("Detecting software from {0} metadata", cardInfo.DriveLetter);
+
             return GetValue(cardInfo);
         }
 
