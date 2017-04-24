@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Net.Chdk.Detectors.Software
 {
     sealed class FileSystemSoftwareDetector : IInnerSoftwareDetector
     {
-        private static string Version => "1.0";
+        private static Version Version => new Version("1.0");
 
         private ILogger Logger { get; }
         private IEnumerable<IProductDetector> ProductDetectors { get; }
