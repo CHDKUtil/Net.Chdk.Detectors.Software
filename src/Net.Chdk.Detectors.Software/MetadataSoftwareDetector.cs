@@ -80,9 +80,6 @@ namespace Net.Chdk.Detectors.Software
             if (product.Language == null)
                 return false;
 
-            if (product.Language.IsNeutralCulture)
-                return false;
-
             return true;
         }
 
