@@ -84,6 +84,10 @@
       <Project>{7F492AD5-C9E5-4E13-9587-D0B88BA8D209}</Project>
       <Name>Net.Chdk.Model.Software</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Net.Chdk.Providers.Boot.Core\src\Net.Chdk.Providers.Boot.Core\Net.Chdk.Providers.Boot.Core.csproj">
+      <Project>{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}</Project>
+      <Name>Net.Chdk.Providers.Boot.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

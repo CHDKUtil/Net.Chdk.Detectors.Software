@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
+using Net.Chdk.Providers.Boot;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,18 +15,21 @@ namespace Net.Chdk.Detectors.Software
 
         private ILogger Logger { get; }
         private IEnumerable<IProductDetector> ProductDetectors { get; }
+        private IBootProvider BootProvider { get; }
 
-        public FileSystemSoftwareDetector(IEnumerable<IProductDetector> productDetectors, ILoggerFactory loggerFactory)
+        public FileSystemSoftwareDetector(IEnumerable<IProductDetector> productDetectors, IBootProvider bootProvider, ILoggerFactory loggerFactory)
         {
             Logger = loggerFactory.CreateLogger<FileSystemSoftwareDetector>();
             ProductDetectors = productDetectors;
+            BootProvider = bootProvider;
         }
 
         public SoftwareInfo GetSoftware(CardInfo cardInfo)
         {
             Logger.LogTrace("Detecting software from {0} file system", cardInfo.DriveLetter);
 
-            string diskbootPath = cardInfo.GetDiskbootPath();
+            var rootPath = cardInfo.GetRootPath();
+            var diskbootPath = Path.Combine(rootPath, BootProvider.FileName);
             if (!File.Exists(diskbootPath))
                 return null;
 
