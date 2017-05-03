@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Core", "..\..\..\N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Detectors.Core", "..\..\..\Net.Chdk.Detectors.Core\src\Net.Chdk.Detectors.Core\Net.Chdk.Detectors.Core.csproj", "{B5899F00-8BD7-4776-A677-86177A796146}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Detectors.Software.Core", "..\..\..\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core.csproj", "{D385AB93-0DB5-45AA-994A-5E4B671BEF40}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Detectors.Software.Core", "..\..\..\Net.Chdk.Detectors.Software.Core\src\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core.csproj", "{D385AB93-0DB5-45AA-994A-5E4B671BEF40}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Model.Card", "..\..\..\Net.Chdk.Model.Card\src\Net.Chdk.Model.Card\Net.Chdk.Model.Card.csproj", "{A41D61FE-2FB8-4892-AC7D-ECEE7E61C637}"
 EndProject
