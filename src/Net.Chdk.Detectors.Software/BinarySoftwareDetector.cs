@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Net.Chdk.Encoders.DancingBits;
+using Net.Chdk.Encoders.Binary;
 using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Boot;
@@ -46,12 +46,12 @@ namespace Net.Chdk.Detectors.Software
             using (var encStream = new MemoryStream(encBuffer))
             {
                 var hash = GetHash(encStream, fileName, HashName);
-                for (var version = 0; version <= DancingBitsEncoder.MaxVersion; version++)
+                for (var version = 0; version <= BinaryEncoder.MaxVersion; version++)
                 {
                     encStream.Seek(0, SeekOrigin.Begin);
                     using (var decStream = new MemoryStream(decBuffer))
                     {
-                        DancingBitsEncoder.Decode(encStream, decStream, version);
+                        BinaryEncoder.Decode(encStream, decStream, version);
                         var software = GetSoftware(decBuffer);
                         if (software != null)
                         {

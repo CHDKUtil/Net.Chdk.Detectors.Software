@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Providers.Boot.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Validators.Core", "..\..\..\Net.Chdk.Validators.Core\src\Net.Chdk.Validators.Core\Net.Chdk.Validators.Core.csproj", "{850646A6-01CE-48D5-9868-0D1CFC4F48D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Encoders.DancingBits", "..\..\..\Net.Chdk.Encoders.DancingBits\src\Net.Chdk.Encoders.DancingBits\Net.Chdk.Encoders.DancingBits.csproj", "{62DA1E42-36A6-4FA5-8439-6634D47FDBF3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Encoders.Binary", "..\..\..\Net.Chdk.Encoders.Binary\src\Net.Chdk.Encoders.Binary\Net.Chdk.Encoders.Binary.csproj", "{62DA1E42-36A6-4FA5-8439-6634D47FDBF3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Providers.Crypto.Core", "..\..\..\Net.Chdk.Providers.Crypto.Core\src\Net.Chdk.Providers.Crypto.Core\Net.Chdk.Providers.Crypto.Core.csproj", "{5A6B4079-63EF-42BC-BAF8-F6C3480A4EC6}"
 EndProject
