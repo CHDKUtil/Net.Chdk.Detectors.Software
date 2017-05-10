@@ -51,12 +51,14 @@ namespace Net.Chdk.Detectors.Software
                     encStream.Seek(0, SeekOrigin.Begin);
                     using (var decStream = new MemoryStream(decBuffer))
                     {
-                        BinaryDecoder.Decode(encStream, decStream, version);
-                        var software = GetSoftware(decBuffer);
-                        if (software != null)
+                        if (BinaryDecoder.Decode(encStream, decStream, version))
                         {
-                            software.Hash = hash;
-                            return software;
+                            var software = GetSoftware(decBuffer);
+                            if (software != null)
+                            {
+                                software.Hash = hash;
+                                return software;
+                            }
                         }
                     }
                 }
