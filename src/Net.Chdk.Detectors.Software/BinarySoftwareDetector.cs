@@ -17,13 +17,15 @@ namespace Net.Chdk.Detectors.Software
 
         private ILogger Logger { get; }
         private IEnumerable<IInnerBinarySoftwareDetector> SoftwareDetectors { get; }
+        private IBinaryDecoder BinaryDecoder { get; }
         private IBootProvider BootProvider { get; }
         private IHashProvider HashProvider { get; }
 
-        public BinarySoftwareDetector(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors, IBootProvider bootProvider, IHashProvider hashProvider, ILoggerFactory loggerFactory)
+        public BinarySoftwareDetector(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, IHashProvider hashProvider, ILoggerFactory loggerFactory)
         {
             Logger = loggerFactory.CreateLogger<BinarySoftwareDetector>();
             SoftwareDetectors = softwareDetectors;
+            BinaryDecoder = binaryDecoder;
             BootProvider = bootProvider;
             HashProvider = hashProvider;
         }

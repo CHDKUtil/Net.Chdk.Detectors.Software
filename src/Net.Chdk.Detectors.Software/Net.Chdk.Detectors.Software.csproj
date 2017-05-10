@@ -77,9 +77,9 @@
       <Project>{D385AB93-0DB5-45AA-994A-5E4B671BEF40}</Project>
       <Name>Net.Chdk.Detectors.Software.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Net.Chdk.Encoders.Binary\src\Net.Chdk.Encoders.Binary\Net.Chdk.Encoders.Binary.csproj">
-      <Project>{62DA1E42-36A6-4FA5-8439-6634D47FDBF3}</Project>
-      <Name>Net.Chdk.Encoders.Binary</Name>
+    <ProjectReference Include="..\..\..\Net.Chdk.Encoders.Binary.Core\src\Net.Chdk.Encoders.Binary.Core\Net.Chdk.Encoders.Binary.Core.csproj">
+      <Project>{5e2fdedb-20fa-401d-ad6b-38088bb14d3a}</Project>
+      <Name>Net.Chdk.Encoders.Binary.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Net.Chdk.Model.Card\src\Net.Chdk.Model.Card\Net.Chdk.Model.Card.csproj">
       <Project>{a41d61fe-2fb8-4892-ac7d-ecee7e61c637}</Project>
