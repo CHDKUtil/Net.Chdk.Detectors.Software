@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileSystemSoftwareDetector.cs" />
+    <Compile Include="IInnerSoftwareDetector.cs" />
     <Compile Include="MetadataSoftwareDetector.cs" />
     <Compile Include="ServiceCollectionExtensions.cs" />
     <Compile Include="SoftwareDetector.cs" />
