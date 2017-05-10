@@ -63,26 +63,17 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo GetSoftware(IInnerBinarySoftwareDetector softwareDetector, byte[] buffer)
         {
-            var bytes = softwareDetector.Bytes;
-            foreach (var bytesItem in bytes)
-            {
-                var index = SeekAfter(buffer, bytesItem);
-                if (index >= 0)
-                {
-                    var software = softwareDetector.GetSoftware(buffer, index);
-                    if (software != null)
-                        return software;
-                }
-            }
-            return null;
+            return softwareDetector.Bytes
+                .SelectMany(b => SeekAfterMany(buffer, b))
+                .Select(i => softwareDetector.GetSoftware(buffer, i))
+                .FirstOrDefault(s => s != null);
         }
 
-        private static int SeekAfter(byte[] buffer, byte[] bytes)
+        private static IEnumerable<int> SeekAfterMany(byte[] buffer, byte[] bytes)
         {
             for (var i = 0; i < buffer.Length - bytes.Length; i++)
                 if (Enumerable.Range(0, bytes.Length).All(j => buffer[i + j] == bytes[j]))
-                    return i + bytes.Length;
-            return -1;
+                    yield return i + bytes.Length;
         }
     }
 }
