@@ -4,6 +4,7 @@ using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Boot;
 using Net.Chdk.Providers.Crypto;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -69,14 +70,20 @@ namespace Net.Chdk.Detectors.Software
         private SoftwareInfo GetSoftware(byte[] buffer)
         {
             return SoftwareDetectors
-                .Select(d => GetSoftware(d, buffer))
+                .SelectMany(GetBytes)
+                .AsParallel()
+                .Select(t => GetSoftware(buffer, t.Item1, t.Item2))
                 .FirstOrDefault(s => s != null);
         }
 
-        private SoftwareInfo GetSoftware(IInnerBinarySoftwareDetector softwareDetector, byte[] buffer)
+        private IEnumerable<Tuple<IInnerBinarySoftwareDetector, byte[]>> GetBytes(IInnerBinarySoftwareDetector d)
         {
-            return softwareDetector.Bytes
-                .SelectMany(b => SeekAfterMany(buffer, b))
+            return d.Bytes.Select(b => Tuple.Create(d, b));
+        }
+
+        private SoftwareInfo GetSoftware(byte[] buffer, IInnerBinarySoftwareDetector softwareDetector, byte[] bytes)
+        {
+            return SeekAfterMany(buffer, bytes)
                 .Select(i => softwareDetector.GetSoftware(buffer, i))
                 .FirstOrDefault(s => s != null);
         }
@@ -93,7 +100,7 @@ namespace Net.Chdk.Detectors.Software
         private Dictionary<string, string> GetHashValues(Stream stream, string fileName, string hashName)
         {
             var key = fileName.ToLowerInvariant();
-            var value = HashProvider.GetHashString(stream, HashName);
+            var value = HashProvider.GetHashString(stream, hashName);
             return new Dictionary<string, string>
             {
                 { key, value }
