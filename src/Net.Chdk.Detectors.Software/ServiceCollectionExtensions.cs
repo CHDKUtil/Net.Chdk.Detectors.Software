@@ -9,6 +9,7 @@ namespace Net.Chdk.Detectors.Software
             return serviceCollection
                 .AddSingleton<ISoftwareDetector, SoftwareDetector>()
                 .AddSingleton<IInnerSoftwareDetector, MetadataSoftwareDetector>()
+                .AddSingleton<IInnerSoftwareDetector, BinarySoftwareDetector>()
                 .AddSingleton<IInnerSoftwareDetector, FileSystemSoftwareDetector>();
         }
     }

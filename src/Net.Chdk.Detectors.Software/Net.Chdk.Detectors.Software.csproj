@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinarySoftwareDetector.cs" />
     <Compile Include="FileSystemSoftwareDetector.cs" />
     <Compile Include="IInnerSoftwareDetector.cs" />
     <Compile Include="MetadataSoftwareDetector.cs" />
@@ -75,6 +76,10 @@
     <ProjectReference Include="..\..\..\Net.Chdk.Detectors.Software.Core\src\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core.csproj">
       <Project>{D385AB93-0DB5-45AA-994A-5E4B671BEF40}</Project>
       <Name>Net.Chdk.Detectors.Software.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Net.Chdk.Encoders.DancingBits\src\Net.Chdk.Encoders.DancingBits\Net.Chdk.Encoders.DancingBits.csproj">
+      <Project>{62DA1E42-36A6-4FA5-8439-6634D47FDBF3}</Project>
+      <Name>Net.Chdk.Encoders.DancingBits</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Net.Chdk.Model.Card\src\Net.Chdk.Model.Card\Net.Chdk.Model.Card.csproj">
       <Project>{a41d61fe-2fb8-4892-ac7d-ecee7e61c637}</Project>
