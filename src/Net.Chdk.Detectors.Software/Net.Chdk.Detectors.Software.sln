@@ -17,11 +17,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Model.Card", "..\.
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Net.Chdk.Shared", "..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.shproj", "{83C6A77C-3286-4F5F-B628-3B971097AD05}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Providers.Boot.Core", "..\..\..\Net.Chdk.Providers.Boot.Core\src\Net.Chdk.Providers.Boot.Core\Net.Chdk.Providers.Boot.Core.csproj", "{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Net.Chdk.Validators.Core", "..\..\..\Net.Chdk.Validators.Core\src\Net.Chdk.Validators.Core\Net.Chdk.Validators.Core.csproj", "{850646A6-01CE-48D5-9868-0D1CFC4F48D5}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{4e4fa15a-4a88-4caf-a8e1-fc507177ead4}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{6c183a9c-30c1-47e5-9016-48890ec8aba2}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{7f492ad5-c9e5-4e13-9587-d0b88ba8d209}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{83c6a77c-3286-4f5f-b628-3b971097ad05}*SharedItemsImports = 13
+		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{850646a6-01ce-48d5-9868-0d1cfc4f48d5}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{88466bba-b210-4479-b577-4651fb2e5918}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{a41d61fe-2fb8-4892-ac7d-ecee7e61c637}*SharedItemsImports = 4
 		..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems*{b5899f00-8bd7-4776-a677-86177a796146}*SharedItemsImports = 4
@@ -56,6 +62,14 @@ Global
 		{A41D61FE-2FB8-4892-AC7D-ECEE7E61C637}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A41D61FE-2FB8-4892-AC7D-ECEE7E61C637}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A41D61FE-2FB8-4892-AC7D-ECEE7E61C637}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{850646A6-01CE-48D5-9868-0D1CFC4F48D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{850646A6-01CE-48D5-9868-0D1CFC4F48D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{850646A6-01CE-48D5-9868-0D1CFC4F48D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{850646A6-01CE-48D5-9868-0D1CFC4F48D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
