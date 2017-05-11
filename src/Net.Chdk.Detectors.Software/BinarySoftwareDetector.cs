@@ -3,7 +3,7 @@ using Net.Chdk.Encoders.Binary;
 using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Boot;
-using Net.Chdk.Providers.Crypto;
+using Net.Chdk.Providers.Software;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,9 +19,9 @@ namespace Net.Chdk.Detectors.Software
         private IEnumerable<IInnerBinarySoftwareDetector> SoftwareDetectors { get; }
         private IBinaryDecoder BinaryDecoder { get; }
         private IBootProvider BootProvider { get; }
-        private IHashProvider HashProvider { get; }
+        private ISoftwareHashProvider HashProvider { get; }
 
-        public BinarySoftwareDetector(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, IHashProvider hashProvider, ILoggerFactory loggerFactory)
+        public BinarySoftwareDetector(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
         {
             Logger = loggerFactory.CreateLogger<BinarySoftwareDetector>();
             SoftwareDetectors = softwareDetectors;
@@ -48,7 +48,7 @@ namespace Net.Chdk.Detectors.Software
             var decBuffer = new byte[encBuffer.Length];
             using (var encStream = new MemoryStream(encBuffer))
             {
-                var hash = GetHash(encStream, fileName, HashName);
+                var hash = HashProvider.GetHash(encStream, fileName, HashName);
                 for (var version = 0; version <= BinaryDecoder.MaxVersion; version++)
                 {
                     encStream.Seek(0, SeekOrigin.Begin);
@@ -88,25 +88,6 @@ namespace Net.Chdk.Detectors.Software
             return SeekAfterMany(buffer, bytes)
                 .Select(i => softwareDetector.GetSoftware(buffer, i))
                 .FirstOrDefault(s => s != null);
-        }
-
-        private SoftwareHashInfo GetHash(Stream stream, string fileName, string hashName)
-        {
-            return new SoftwareHashInfo
-            {
-                Name = HashName,
-                Values = GetHashValues(stream, fileName, hashName)
-            };
-        }
-
-        private Dictionary<string, string> GetHashValues(Stream stream, string fileName, string hashName)
-        {
-            var key = fileName.ToLowerInvariant();
-            var value = HashProvider.GetHashString(stream, hashName);
-            return new Dictionary<string, string>
-            {
-                { key, value }
-            };
         }
 
         private static IEnumerable<int> SeekAfterMany(byte[] buffer, byte[] bytes)
