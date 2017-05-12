@@ -19,6 +19,6 @@ namespace Net.Chdk.Detectors.Software
             return GetValue(cardInfo);
         }
 
-        protected override string FileName => "SOFTWARE.JSN";
+        protected override string FileName => Files.Metadata.Software;
     }
 }
