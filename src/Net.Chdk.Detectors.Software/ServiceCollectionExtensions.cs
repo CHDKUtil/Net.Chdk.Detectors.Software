@@ -12,5 +12,11 @@ namespace Net.Chdk.Detectors.Software
                 .AddSingleton<IInnerSoftwareDetector, BinarySoftwareDetector>()
                 .AddSingleton<IInnerSoftwareDetector, FileSystemSoftwareDetector>();
         }
+
+        public static IServiceCollection AddBinarySoftwareDetector(this IServiceCollection serviceCollection)
+        {
+            return serviceCollection
+                .AddSingleton<IBinarySoftwareDetector, BinarySoftwareDetector>();
+        }
     }
 }
