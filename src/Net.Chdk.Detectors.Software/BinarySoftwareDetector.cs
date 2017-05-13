@@ -62,12 +62,10 @@ namespace Net.Chdk.Detectors.Software
                 detectors = detectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
 
             var software2 = GetSoftware(product, camera, encBuffer, detectors);
-            if (software2 != null)
-            {
-                software.Hash = HashProvider.GetHash(encBuffer, BootProvider.FileName, HashName);
-                if (software2.Product.Created != null)
-                    software.Product.Created = software2.Product.Created;
-            }
+            if (software2?.Product.Created != null)
+                software.Product.Created = software2.Product.Created;
+
+            software.Hash = HashProvider.GetHash(encBuffer, BootProvider.FileName, HashName);
             return software;
         }
 
