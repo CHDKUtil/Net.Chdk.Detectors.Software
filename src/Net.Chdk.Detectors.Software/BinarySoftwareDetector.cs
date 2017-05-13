@@ -47,14 +47,10 @@ namespace Net.Chdk.Detectors.Software
             }
 
             var encBuffer = File.ReadAllBytes(diskbootPath);
-            using (var encStream = new MemoryStream(encBuffer))
-            {
-                var hash = HashProvider.GetHash(encStream, fileName, HashName);
-                var software = GetSoftware(SoftwareDetectors, encStream);
-                if (software != null)
-                    software.Hash = hash;
-                return software;
-            }
+            var software = GetSoftware(SoftwareDetectors, encBuffer);
+            if (software != null)
+                software.Hash = HashProvider.GetHash(encBuffer, fileName, HashName);
+            return software;
         }
 
         public SoftwareInfo UpdateSoftware(SoftwareInfo software, byte[] encBuffer)
@@ -65,62 +61,49 @@ namespace Net.Chdk.Detectors.Software
             if (product?.Name != null)
                 detectors = detectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
 
-            using (var encStream = new MemoryStream(encBuffer))
+            var software2 = GetSoftware(product, camera, encBuffer, detectors);
+            if (software2 != null)
             {
-                var hash = HashProvider.GetHash(encStream, BootProvider.FileName, HashName);
-                var software2 = GetSoftware(product, camera, encBuffer, detectors, encStream);
-                if (software2 != null)
-                {
-                    software.Hash = software2.Hash;
-                    if (software2.Product.Created != null)
-                        software.Product.Created = software2.Product.Created;
-                }
-                return software;
+                software.Hash = HashProvider.GetHash(encBuffer, BootProvider.FileName, HashName);
+                if (software2.Product.Created != null)
+                    software.Product.Created = software2.Product.Created;
             }
+            return software;
         }
 
-        private SoftwareInfo GetSoftware(SoftwareProductInfo product, SoftwareCameraInfo camera, byte[] encBuffer, IEnumerable<IInnerBinarySoftwareDetector> detectors, MemoryStream encStream)
+        private SoftwareInfo GetSoftware(SoftwareProductInfo product, SoftwareCameraInfo camera, byte[] encBuffer, IEnumerable<IInnerBinarySoftwareDetector> detectors)
         {
             var cameraModel = CameraProvider.GetCamera(product, camera);
             var version = cameraModel?.EncodingVersion;
             if (version.HasValue)
             {
                 var decBuffer = new byte[encBuffer.Length];
-                return GetSoftware(detectors, encStream, decBuffer, version.Value);
+                return GetSoftware(detectors, encBuffer, decBuffer, version.Value);
             }
-            return GetSoftware(detectors, encStream);
+            return GetSoftware(detectors, encBuffer);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, MemoryStream encStream)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer)
         {
-            var decBuffer = new byte[encStream.Length];
+            var decBuffer = new byte[encBuffer.Length];
             for (var version = 0; version <= BinaryDecoder.MaxVersion; version++)
             {
-                var software = GetSoftware(detectors, encStream, decBuffer, version);
+                var software = GetSoftware(detectors, encBuffer, decBuffer, version);
                 if (software != null)
                     return software;
             }
             return null;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, MemoryStream encStream, byte[] decBuffer, int version)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, int version)
         {
-            encStream.Seek(0, SeekOrigin.Begin);
-            using (var decStream = new MemoryStream(decBuffer))
-            {
-                if (BinaryDecoder.Decode(encStream, decStream, version))
-                    return GetSoftware(detectors, decBuffer);
-                return null;
-            }
-        }
-
-        private static SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] buffer)
-        {
-            return detectors
-                .SelectMany(GetBytes)
-                .AsParallel()
-                .Select(t => GetSoftware(buffer, t.Item1, t.Item2))
-                .FirstOrDefault(s => s != null);
+            return BinaryDecoder.Decode(encBuffer, decBuffer, version)
+                ? detectors
+                    .SelectMany(GetBytes)
+                    .AsParallel()
+                    .Select(t => GetSoftware(decBuffer, t.Item1, t.Item2))
+                    .FirstOrDefault(s => s != null)
+                : null;
         }
 
         private static IEnumerable<Tuple<IInnerBinarySoftwareDetector, byte[]>> GetBytes(IInnerBinarySoftwareDetector d)
