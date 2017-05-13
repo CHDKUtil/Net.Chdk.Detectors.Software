@@ -52,12 +52,9 @@ namespace Net.Chdk.Detectors.Software
                 var hash = HashProvider.GetHash(encStream, fileName, HashName);
                 var software = GetSoftware(SoftwareDetectors, encStream);
                 if (software != null)
-                {
                     software.Hash = hash;
-                    return software;
-                }
+                return software;
             }
-            return null;
         }
 
         public SoftwareInfo GetSoftware(SoftwareProductInfo product, SoftwareCameraInfo camera, byte[] encBuffer)
@@ -68,15 +65,24 @@ namespace Net.Chdk.Detectors.Software
 
             using (var encStream = new MemoryStream(encBuffer))
             {
-                var cameraModel = CameraProvider.GetCamera(product, camera);
-                var version = cameraModel?.EncodingVersion;
-                if (version.HasValue)
-                {
-                    var decBuffer = new byte[encBuffer.Length];
-                    return GetSoftware(detectors, encStream, decBuffer, version.Value);
-                }
-                return GetSoftware(detectors, encStream);
+                var hash = HashProvider.GetHash(encStream, BootProvider.FileName, HashName);
+                var software = GetSoftware(product, camera, encBuffer, detectors, encStream);
+                if (software != null)
+                    software.Hash = hash;
+                return software;
             }
+        }
+
+        private SoftwareInfo GetSoftware(SoftwareProductInfo product, SoftwareCameraInfo camera, byte[] encBuffer, IEnumerable<IInnerBinarySoftwareDetector> detectors, MemoryStream encStream)
+        {
+            var cameraModel = CameraProvider.GetCamera(product, camera);
+            var version = cameraModel?.EncodingVersion;
+            if (version.HasValue)
+            {
+                var decBuffer = new byte[encBuffer.Length];
+                return GetSoftware(detectors, encStream, decBuffer, version.Value);
+            }
+            return GetSoftware(detectors, encStream);
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, MemoryStream encStream)
@@ -84,7 +90,6 @@ namespace Net.Chdk.Detectors.Software
             var decBuffer = new byte[encStream.Length];
             for (var version = 0; version <= BinaryDecoder.MaxVersion; version++)
             {
-                encStream.Seek(0, SeekOrigin.Begin);
                 var software = GetSoftware(detectors, encStream, decBuffer, version);
                 if (software != null)
                     return software;
@@ -94,12 +99,13 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, MemoryStream encStream, byte[] decBuffer, int version)
         {
+            encStream.Seek(0, SeekOrigin.Begin);
             using (var decStream = new MemoryStream(decBuffer))
             {
                 if (BinaryDecoder.Decode(encStream, decStream, version))
                     return GetSoftware(detectors, decBuffer);
+                return null;
             }
-            return null;
         }
 
         private static SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] buffer)
