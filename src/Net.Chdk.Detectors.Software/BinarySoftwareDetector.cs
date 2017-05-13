@@ -68,7 +68,8 @@ namespace Net.Chdk.Detectors.Software
 
             using (var encStream = new MemoryStream(encBuffer))
             {
-                var version = CameraProvider.GetEncodingVersion(product, camera);
+                var cameraModel = CameraProvider.GetCamera(product, camera);
+                var version = cameraModel?.EncodingVersion;
                 if (version.HasValue)
                 {
                     var decBuffer = new byte[encBuffer.Length];
