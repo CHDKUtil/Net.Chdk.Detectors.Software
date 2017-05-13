@@ -34,9 +34,13 @@ namespace Net.Chdk.Detectors.Software
 
         public SoftwareInfo GetSoftware(CardInfo cardInfo)
         {
-            var rootPath = cardInfo.GetRootPath();
+            return GetSoftware(cardInfo.GetRootPath());
+        }
+
+        public SoftwareInfo GetSoftware(string basePath)
+        {
             var fileName = BootProvider.FileName;
-            var diskbootPath = Path.Combine(rootPath, fileName);
+            var diskbootPath = Path.Combine(basePath, fileName);
 
             Logger.LogTrace("Detecting software from {0}", diskbootPath);
 
