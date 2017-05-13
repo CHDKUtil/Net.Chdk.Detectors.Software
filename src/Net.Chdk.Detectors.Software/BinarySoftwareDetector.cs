@@ -57,8 +57,10 @@ namespace Net.Chdk.Detectors.Software
             }
         }
 
-        public SoftwareInfo GetSoftware(SoftwareProductInfo product, SoftwareCameraInfo camera, byte[] encBuffer)
+        public SoftwareInfo UpdateSoftware(SoftwareInfo software, byte[] encBuffer)
         {
+            var product = software.Product;
+            var camera = software.Camera;
             var detectors = SoftwareDetectors;
             if (product?.Name != null)
                 detectors = detectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
@@ -66,9 +68,13 @@ namespace Net.Chdk.Detectors.Software
             using (var encStream = new MemoryStream(encBuffer))
             {
                 var hash = HashProvider.GetHash(encStream, BootProvider.FileName, HashName);
-                var software = GetSoftware(product, camera, encBuffer, detectors, encStream);
-                if (software != null)
-                    software.Hash = hash;
+                var software2 = GetSoftware(product, camera, encBuffer, detectors, encStream);
+                if (software2 != null)
+                {
+                    software.Hash = software2.Hash;
+                    if (software2.Product.Created != null)
+                        software.Product.Created = software2.Product.Created;
+                }
                 return software;
             }
         }
