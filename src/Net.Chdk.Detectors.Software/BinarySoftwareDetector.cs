@@ -87,10 +87,13 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer)
         {
+            var software = DoGetSoftware(detectors, encBuffer);
+            if (software != null)
+                return software;
             var decBuffer = new byte[encBuffer.Length];
-            for (var version = 0; version <= BinaryDecoder.MaxVersion; version++)
+            for (var version = 1; version <= BinaryDecoder.MaxVersion; version++)
             {
-                var software = GetSoftware(detectors, encBuffer, decBuffer, version);
+                software = GetSoftware(detectors, encBuffer, decBuffer, version);
                 if (software != null)
                     return software;
             }
@@ -100,12 +103,17 @@ namespace Net.Chdk.Detectors.Software
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, int version)
         {
             return BinaryDecoder.Decode(encBuffer, decBuffer, version)
-                ? detectors
-                    .SelectMany(GetBytes)
-                    .AsParallel()
-                    .Select(t => GetSoftware(decBuffer, t.Item1, t.Item2))
-                    .FirstOrDefault(s => s != null)
+                ? DoGetSoftware(detectors, decBuffer)
                 : null;
+        }
+
+        private static SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] buffer)
+        {
+            return detectors
+                .SelectMany(GetBytes)
+                .AsParallel()
+                .Select(t => GetSoftware(buffer, t.Item1, t.Item2))
+                .FirstOrDefault(s => s != null);
         }
 
         private static IEnumerable<Tuple<IInnerBinarySoftwareDetector, byte[]>> GetBytes(IInnerBinarySoftwareDetector d)
