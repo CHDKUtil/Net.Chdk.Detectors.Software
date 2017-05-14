@@ -90,14 +90,14 @@ namespace Net.Chdk.Detectors.Software
             var software = DoGetSoftware(detectors, encBuffer);
             if (software != null)
                 return software;
-            var decBuffer = new byte[encBuffer.Length];
-            for (var version = 1; version <= BinaryDecoder.MaxVersion; version++)
-            {
-                software = GetSoftware(detectors, encBuffer, decBuffer, version);
-                if (software != null)
-                    return software;
-            }
-            return null;
+            var maxVersion = BinaryDecoder.MaxVersion;
+            var decBuffers = new byte[maxVersion][];
+            for (var i = 0; i < maxVersion; i++)
+                decBuffers[i] = new byte[encBuffer.Length];
+            return Enumerable.Range(1, maxVersion)
+                .AsParallel()
+                .Select(v => GetSoftware(detectors, encBuffer, decBuffers[v - 1], v))
+                .FirstOrDefault(s => s != null);
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, int version)
@@ -111,7 +111,6 @@ namespace Net.Chdk.Detectors.Software
         {
             return detectors
                 .SelectMany(GetBytes)
-                .AsParallel()
                 .Select(t => GetSoftware(buffer, t.Item1, t.Item2))
                 .FirstOrDefault(s => s != null);
         }
