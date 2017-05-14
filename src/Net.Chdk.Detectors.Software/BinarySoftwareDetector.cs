@@ -91,13 +91,38 @@ namespace Net.Chdk.Detectors.Software
             var software = PlainGetSoftware(detectors, encBuffer);
             if (software != null)
                 return software;
-            var maxVersion = BinaryDecoder.MaxVersion;
-            var decBuffers = new byte[maxVersion][];
-            for (var i = 0; i < maxVersion; i++)
+
+            var maxThreads = Properties.Settings.Default.MaxThreads;
+            var processorCount = Environment.ProcessorCount;
+            var count = maxThreads > 0 && maxThreads < processorCount
+                ? maxThreads
+                : processorCount;
+
+            var decBuffers = new byte[count][];
+            for (var i = 0; i < count; i++)
                 decBuffers[i] = new byte[encBuffer.Length];
-            return Enumerable.Range(1, maxVersion)
+
+            var versions = new int[count + 1];
+            for (var i = 0; i <= count; i++)
+                versions[i] = i * BinaryDecoder.MaxVersion / count + 1;
+
+            if (count == 1)
+            {
+                Logger.LogTrace("Detecting software in a single thread");
+                return GetSoftware(detectors, encBuffer, decBuffers[0], versions[0], versions[1]);
+            }
+
+            Logger.LogTrace("Detecting software in {0} threads", count);
+            return Enumerable.Range(0, count)
                 .AsParallel()
-                .Select(v => GetSoftware(detectors, encBuffer, decBuffers[v - 1], v))
+                .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], versions[i], versions[i + 1]))
+                .FirstOrDefault(s => s != null);
+        }
+
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, int startVersion, int endVersion)
+        {
+            return Enumerable.Range(startVersion, endVersion - startVersion)
+                .Select(v => GetSoftware(detectors, encBuffer, decBuffer, v))
                 .FirstOrDefault(s => s != null);
         }
 
@@ -111,8 +136,9 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private static SoftwareInfo PlainGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] buffer)
+        private SoftwareInfo PlainGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] buffer)
         {
+            Logger.LogTrace("Detecting software from plaintext");
             var software = DoGetSoftware(detectors, buffer);
             if (software != null)
                 software.Encoding = PlainGetEncodingInfo();

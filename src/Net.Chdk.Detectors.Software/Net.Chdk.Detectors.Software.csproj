@@ -60,6 +60,11 @@
     <Compile Include="FileSystemSoftwareDetector.cs" />
     <Compile Include="IInnerSoftwareDetector.cs" />
     <Compile Include="MetadataSoftwareDetector.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="ServiceCollectionExtensions.cs" />
     <Compile Include="SoftwareDetector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -103,7 +108,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
