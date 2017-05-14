@@ -13,6 +13,7 @@ namespace Net.Chdk.Detectors.Software
 {
     sealed class BinarySoftwareDetector : IInnerSoftwareDetector, IBinarySoftwareDetector
     {
+        private const string EncodingName = "dancingbits";
         private const string HashName = "sha256";
 
         private ILogger Logger { get; }
@@ -59,35 +60,35 @@ namespace Net.Chdk.Detectors.Software
 
         public SoftwareInfo UpdateSoftware(SoftwareInfo software, byte[] encBuffer)
         {
-            var product = software.Product;
-            var camera = software.Camera;
-            var detectors = SoftwareDetectors;
-            if (product?.Name != null)
-                detectors = detectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
+            var detectors = GetDetectors(software.Product);
+            var version = GetEncodingVersion(software.Product, software.Camera, software.Encoding);
 
-            var software2 = GetSoftware(product, camera, encBuffer, detectors);
-            if (software2?.Product.Created != null)
-                software.Product.Created = software2.Product.Created;
+            var software2 = GetSoftware(detectors, encBuffer, version);
+            if (software2 != null)
+            {
+                if (software2.Product.Created != null)
+                    software.Product.Created = software2.Product.Created;
+                if (software.Encoding == null)
+                    software.Encoding = software2.Encoding;
+            }
 
             software.Hash = HashProvider.GetHash(encBuffer, BootProvider.FileName, HashName);
             return software;
         }
 
-        private SoftwareInfo GetSoftware(SoftwareProductInfo product, SoftwareCameraInfo camera, byte[] encBuffer, IEnumerable<IInnerBinarySoftwareDetector> detectors)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, int? version)
         {
-            var cameraModel = CameraProvider.GetCamera(product, camera);
-            var version = cameraModel?.EncodingVersion;
-            if (version.HasValue)
-            {
-                var decBuffer = new byte[encBuffer.Length];
-                return GetSoftware(detectors, encBuffer, decBuffer, version.Value);
-            }
-            return GetSoftware(detectors, encBuffer);
+            if (version == null)
+                return GetSoftware(detectors, encBuffer);
+            if (version == 0)
+                return PlainGetSoftware(detectors, encBuffer);
+            var decBuffer = new byte[encBuffer.Length];
+            return GetSoftware(detectors, encBuffer, decBuffer, version.Value);
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer)
         {
-            var software = DoGetSoftware(detectors, encBuffer);
+            var software = PlainGetSoftware(detectors, encBuffer);
             if (software != null)
                 return software;
             var maxVersion = BinaryDecoder.MaxVersion;
@@ -102,9 +103,20 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, int version)
         {
-            return BinaryDecoder.Decode(encBuffer, decBuffer, version)
-                ? DoGetSoftware(detectors, decBuffer)
-                : null;
+            if (!BinaryDecoder.Decode(encBuffer, decBuffer, version))
+                return null;
+            var software = DoGetSoftware(detectors, decBuffer);
+            if (software != null)
+                software.Encoding = GetEncodingInfo(version);
+            return software;
+        }
+
+        private static SoftwareInfo PlainGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] buffer)
+        {
+            var software = DoGetSoftware(detectors, buffer);
+            if (software != null)
+                software.Encoding = PlainGetEncodingInfo();
+            return software;
         }
 
         private static SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] buffer)
@@ -132,6 +144,49 @@ namespace Net.Chdk.Detectors.Software
             for (var i = 0; i < buffer.Length - bytes.Length; i++)
                 if (Enumerable.Range(0, bytes.Length).All(j => buffer[i + j] == bytes[j]))
                     yield return i + bytes.Length;
+        }
+
+        private int? GetEncodingVersion(SoftwareProductInfo product, SoftwareCameraInfo camera, SoftwareEncodingInfo encoding)
+        {
+            if (encoding != null)
+                return GetEncodingVersion(encoding);
+            var cameraModel = CameraProvider.GetCamera(product, camera);
+            return cameraModel?.EncodingVersion;
+        }
+
+        private IEnumerable<IInnerBinarySoftwareDetector> GetDetectors(SoftwareProductInfo product)
+        {
+            return product?.Name == null
+                ? SoftwareDetectors
+                : SoftwareDetectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
+        }
+
+        private static int? GetEncodingVersion(SoftwareEncodingInfo encoding)
+        {
+            if (encoding?.Name == null)
+                return null;
+            if (encoding.Name.Length == 0)
+                return 0;
+            if (!EncodingName.Equals(encoding.Name, StringComparison.InvariantCulture))
+                return null;
+            return (int?)encoding.Data;
+        }
+
+        private static SoftwareEncodingInfo GetEncodingInfo(int version)
+        {
+            return new SoftwareEncodingInfo
+            {
+                Name = EncodingName,
+                Data = (ulong)version
+            };
+        }
+
+        private static SoftwareEncodingInfo PlainGetEncodingInfo()
+        {
+            return new SoftwareEncodingInfo
+            {
+                Name = string.Empty
+            };
         }
     }
 }
