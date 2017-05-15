@@ -61,9 +61,9 @@ namespace Net.Chdk.Detectors.Software
         public SoftwareInfo UpdateSoftware(SoftwareInfo software, byte[] encBuffer)
         {
             var detectors = GetDetectors(software.Product);
-            var version = GetEncodingVersion(software.Product, software.Camera, software.Encoding);
+            var offsets = GetEncodingOffsets(software.Product, software.Camera, software.Encoding);
 
-            var software2 = GetSoftware(detectors, encBuffer, version);
+            var software2 = GetSoftware(detectors, encBuffer, offsets);
             if (software2 != null)
             {
                 if (software2.Product.Created != null)
@@ -76,14 +76,14 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, int? version)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, ulong? offsets)
         {
-            if (version == null)
+            if (offsets == null)
                 return GetSoftware(detectors, encBuffer);
-            if (version == 0)
+            if (offsets == 0)
                 return PlainGetSoftware(detectors, encBuffer);
             var decBuffer = new byte[encBuffer.Length];
-            return GetSoftware(detectors, encBuffer, decBuffer, version.Value);
+            return GetSoftware(detectors, encBuffer, decBuffer, offsets);
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer)
@@ -106,33 +106,37 @@ namespace Net.Chdk.Detectors.Software
             for (var i = 0; i <= count; i++)
                 versions[i] = i * BinaryDecoder.MaxVersion / count + 1;
 
+            var offsets = new ulong[BinaryDecoder.MaxVersion];
+            for (var v = 0; v < BinaryDecoder.MaxVersion; v++)
+                offsets[v] = GetOffsets(v + 1);
+
             if (count == 1)
             {
                 Logger.LogTrace("Detecting software in a single thread");
-                return GetSoftware(detectors, encBuffer, decBuffers[0], versions[0], versions[1]);
+                return GetSoftware(detectors, encBuffer, decBuffers[0], versions[0], versions[1], offsets);
             }
 
             Logger.LogTrace("Detecting software in {0} threads", count);
             return Enumerable.Range(0, count)
                 .AsParallel()
-                .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], versions[i], versions[i + 1]))
+                .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], versions[i], versions[i + 1], offsets))
                 .FirstOrDefault(s => s != null);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, int startVersion, int endVersion)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, int startVersion, int endVersion, ulong[] offsets)
         {
             return Enumerable.Range(startVersion, endVersion - startVersion)
-                .Select(v => GetSoftware(detectors, encBuffer, decBuffer, v))
+                .Select(v => GetSoftware(detectors, encBuffer, decBuffer, offsets[v - 1]))
                 .FirstOrDefault(s => s != null);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, int version)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong? offsets)
         {
-            if (!BinaryDecoder.Decode(encBuffer, decBuffer, version))
+            if (!BinaryDecoder.Decode(encBuffer, decBuffer, offsets))
                 return null;
             var software = DoGetSoftware(detectors, decBuffer);
             if (software != null)
-                software.Encoding = GetEncodingInfo(version);
+                software.Encoding = GetEncodingInfo(offsets);
             return software;
         }
 
@@ -141,7 +145,7 @@ namespace Net.Chdk.Detectors.Software
             Logger.LogTrace("Detecting software from plaintext");
             var software = DoGetSoftware(detectors, buffer);
             if (software != null)
-                software.Encoding = PlainGetEncodingInfo();
+                software.Encoding = GetEncodingInfo(null);
             return software;
         }
 
@@ -172,12 +176,14 @@ namespace Net.Chdk.Detectors.Software
                     yield return i + bytes.Length;
         }
 
-        private int? GetEncodingVersion(SoftwareProductInfo product, SoftwareCameraInfo camera, SoftwareEncodingInfo encoding)
+        private ulong? GetEncodingOffsets(SoftwareProductInfo product, SoftwareCameraInfo camera, SoftwareEncodingInfo encoding)
         {
-            if (encoding != null)
-                return GetEncodingVersion(encoding);
-            var cameraModel = CameraProvider.GetCamera(product, camera);
-            return cameraModel?.EncodingVersion;
+            if (encoding == null)
+            {
+                var cameraModel = CameraProvider.GetCamera(product, camera);
+                encoding = cameraModel?.Encoding;
+            }
+            return encoding?.Data;
         }
 
         private IEnumerable<IInnerBinarySoftwareDetector> GetDetectors(SoftwareProductInfo product)
@@ -187,32 +193,22 @@ namespace Net.Chdk.Detectors.Software
                 : SoftwareDetectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
         }
 
-        private static int? GetEncodingVersion(SoftwareEncodingInfo encoding)
-        {
-            if (encoding?.Name == null)
-                return null;
-            if (encoding.Name.Length == 0)
-                return 0;
-            if (!EncodingName.Equals(encoding.Name, StringComparison.InvariantCulture))
-                return null;
-            return (int?)encoding.Data;
-        }
-
-        private static SoftwareEncodingInfo GetEncodingInfo(int version)
+        private static SoftwareEncodingInfo GetEncodingInfo(ulong? offsets)
         {
             return new SoftwareEncodingInfo
             {
-                Name = EncodingName,
-                Data = (ulong)version
+                Name = offsets != null ? EncodingName : string.Empty,
+                Data = offsets
             };
         }
 
-        private static SoftwareEncodingInfo PlainGetEncodingInfo()
+        private ulong GetOffsets(int version)
         {
-            return new SoftwareEncodingInfo
-            {
-                Name = string.Empty
-            };
+            var offsets = BootProvider.Offsets[version - 1];
+            var uOffsets = 0ul;
+            for (var index = 0; index < offsets.Length; index++)
+                uOffsets += (ulong)offsets[index] << (index << 3);
+            return uOffsets;
         }
     }
 }
