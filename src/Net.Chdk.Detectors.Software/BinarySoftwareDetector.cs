@@ -133,7 +133,7 @@ namespace Net.Chdk.Detectors.Software
                 return null;
             var software = DoGetSoftware(detectors, decBuffer);
             if (software != null)
-                software.Encoding = GetEncodingInfo(offsets);
+                software.Encoding = GetEncoding(offsets);
             return software;
         }
 
@@ -142,7 +142,7 @@ namespace Net.Chdk.Detectors.Software
             Logger.LogTrace("Detecting software from plaintext");
             var software = DoGetSoftware(detectors, buffer);
             if (software != null)
-                software.Encoding = GetEncodingInfo(null);
+                software.Encoding = GetEncoding(null);
             return software;
         }
 
@@ -207,7 +207,7 @@ namespace Net.Chdk.Detectors.Software
             return null;
         }
 
-        private static SoftwareEncodingInfo GetEncodingInfo(ulong? offsets)
+        private static SoftwareEncodingInfo GetEncoding(ulong? offsets)
         {
             return new SoftwareEncodingInfo
             {
