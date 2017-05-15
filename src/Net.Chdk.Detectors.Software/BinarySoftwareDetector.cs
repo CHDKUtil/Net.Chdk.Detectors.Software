@@ -101,12 +101,12 @@ namespace Net.Chdk.Detectors.Software
             if (software != null)
                 return software;
 
-            var allOffsets = GetAllOffsets();
+            var allOffsets = GetAllOffsetsExcept(offsets);
             var progressState = new ProgressState(allOffsets.Length, progress);
             return GetSoftware(detectors, encBuffer, allOffsets, progressState);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, ulong?[] offsets, ProgressState progress)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, uint?[] offsets, ProgressState progress)
         {
             var maxThreads = Properties.Settings.Default.MaxThreads;
             var processorCount = Environment.ProcessorCount;
@@ -151,7 +151,7 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, ulong?[] offsets, int count, byte[][] encBuffers, byte[][] decBuffers, byte[][] tmpBuffers1, byte[][] tmpBuffers2, Stream[] encStreams, Stream[] decStreams, int[] versions, ProgressState progress)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, uint?[] offsets, int count, byte[][] encBuffers, byte[][] decBuffers, byte[][] tmpBuffers1, byte[][] tmpBuffers2, Stream[] encStreams, Stream[] decStreams, int[] versions, ProgressState progress)
         {
             if (count == 1)
             {
@@ -166,7 +166,7 @@ namespace Net.Chdk.Detectors.Software
                 .FirstOrDefault(s => s != null);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, Stream encStream, Stream decStream, byte[] tmpBuffer1, byte[] tmpBuffer2, int startIndex, int endIndex, ulong?[] offsets, ProgressState progress)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, Stream encStream, Stream decStream, byte[] tmpBuffer1, byte[] tmpBuffer2, int startIndex, int endIndex, uint?[] offsets, ProgressState progress)
         {
             for (var index = startIndex; index < endIndex; index++)
             {
@@ -178,7 +178,7 @@ namespace Net.Chdk.Detectors.Software
             return null;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, Stream encStream, Stream decStream, byte[] tmpBuffer1, byte[] tmpBuffer2, ulong? offsets)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, Stream encStream, Stream decStream, byte[] tmpBuffer1, byte[] tmpBuffer2, uint? offsets)
         {
             var buffer = Decode(encBuffer, decBuffer, encStream, decStream, tmpBuffer1, tmpBuffer2, offsets);
             if (buffer == null)
@@ -250,7 +250,7 @@ namespace Net.Chdk.Detectors.Software
                 : SoftwareDetectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
         }
 
-        private static SoftwareEncodingInfo GetEncoding(ulong? offsets)
+        private static SoftwareEncodingInfo GetEncoding(uint? offsets)
         {
             return new SoftwareEncodingInfo
             {
@@ -259,7 +259,7 @@ namespace Net.Chdk.Detectors.Software
             };
         }
 
-        private byte[] Decode(byte[] encBuffer, byte[] decBuffer, Stream encStream, Stream decStream, byte[] tmpBuffer1, byte[] tmpBuffer2, ulong? offsets)
+        private byte[] Decode(byte[] encBuffer, byte[] decBuffer, Stream encStream, Stream decStream, byte[] tmpBuffer1, byte[] tmpBuffer2, uint? offsets)
         {
             if (offsets == null)
                 return encBuffer;
@@ -270,18 +270,30 @@ namespace Net.Chdk.Detectors.Software
             return null;
         }
 
-        private ulong?[] GetAllOffsets()
+        private uint?[] GetAllOffsets()
         {
             Logger.LogTrace("Building offsets");
-            var result = GetAllOfsets(new int[0])
+            var result = GetAllOffsets(new int[0])
                 .Select(GetOffsets)
-                .Cast<ulong?>()
+                .Cast<uint?>()
                 .ToArray();
             Logger.LogTrace("Building completed");
             return result;
         }
 
-        private static IEnumerable<int[]> GetAllOfsets(int[] prefix)
+        private uint?[] GetAllOffsetsExcept(uint?[] offsets)
+        {
+            Logger.LogTrace("Building offsets");
+            var result = GetAllOffsets(new int[0])
+                .Select(GetOffsets)
+                .Cast<uint?>()
+                .Except(offsets)
+                .ToArray();
+            Logger.LogTrace("Building completed");
+            return result;
+        }
+
+        private static IEnumerable<int[]> GetAllOffsets(int[] prefix)
         {
             if (prefix.Count() == 8)
             {
@@ -294,7 +306,7 @@ namespace Net.Chdk.Detectors.Software
                     if (!prefix.Contains(i))
                     {
                         var prefix2 = prefix.Concat(new[] { i }).ToArray();
-                        var offsets2 = GetAllOfsets(prefix2);
+                        var offsets2 = GetAllOffsets(prefix2);
                         foreach (var offsets in offsets2)
                             yield return offsets;
                     }
@@ -302,25 +314,25 @@ namespace Net.Chdk.Detectors.Software
             }
         }
 
-        private ulong?[] GetOffsets()
+        private uint?[] GetOffsets()
         {
-            var offsets = new ulong?[BinaryDecoder.MaxVersion + 1];
+            var offsets = new uint?[BinaryDecoder.MaxVersion + 1];
             for (var v = 0; v < BinaryDecoder.MaxVersion; v++)
                 offsets[v + 1] = GetOffsets(v + 1);
             return offsets;
         }
 
-        private ulong GetOffsets(int version)
+        private uint GetOffsets(int version)
         {
             var offsets = BootProvider.Offsets[version - 1];
             return GetOffsets(offsets);
         }
 
-        private static ulong GetOffsets(int[] offsets)
+        private static uint GetOffsets(int[] offsets)
         {
-            var uOffsets = 0ul;
+            var uOffsets = 0u;
             for (var index = 0; index < offsets.Length; index++)
-                uOffsets += (ulong)offsets[index] << (index << 3);
+                uOffsets += (uint)offsets[index] << (index << 2);
             return uOffsets;
         }
     }
