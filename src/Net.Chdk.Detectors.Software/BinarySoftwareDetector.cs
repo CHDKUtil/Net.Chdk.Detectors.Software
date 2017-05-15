@@ -33,12 +33,12 @@ namespace Net.Chdk.Detectors.Software
             HashProvider = hashProvider;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress)
         {
-            return GetSoftware(cardInfo.GetRootPath());
+            return GetSoftware(cardInfo.GetRootPath(), progress);
         }
 
-        public SoftwareInfo GetSoftware(string basePath)
+        public SoftwareInfo GetSoftware(string basePath, IProgress<double> progress)
         {
             var fileName = BootProvider.FileName;
             var diskbootPath = Path.Combine(basePath, fileName);
@@ -52,7 +52,7 @@ namespace Net.Chdk.Detectors.Software
             }
 
             var encBuffer = File.ReadAllBytes(diskbootPath);
-            var software = GetSoftware(SoftwareDetectors, encBuffer);
+            var software = GetSoftware(SoftwareDetectors, encBuffer, progress);
             if (software != null)
                 software.Hash = HashProvider.GetHash(encBuffer, fileName, HashName);
             return software;
@@ -76,10 +76,10 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding, IProgress<double> progress = null)
         {
             if (encoding == null)
-                return GetSoftware(detectors, encBuffer);
+                return GetSoftware(detectors, encBuffer, progress);
             if (encoding.Data == null)
                 return PlainGetSoftware(detectors, encBuffer);
             var decBuffer = new byte[encBuffer.Length];
@@ -87,18 +87,19 @@ namespace Net.Chdk.Detectors.Software
             return GetSoftware(detectors, encBuffer, decBuffer, ulBuffer, encoding.Data);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress)
         {
             var offsets = GetOffsets();
-            var software = GetSoftware(detectors, encBuffer, offsets);
+            var software = GetSoftware(detectors, encBuffer, offsets, ProgressState.Empty);
             if (software != null)
                 return software;
 
             var allOffsets = GetAllOffsets();
-            return GetSoftware(detectors, encBuffer, allOffsets);
+            var progressState = new ProgressState(allOffsets.Length, progress);
+            return GetSoftware(detectors, encBuffer, allOffsets, progressState);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, ulong?[] offsets)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, ulong?[] offsets, ProgressState progress)
         {
             var maxThreads = Properties.Settings.Default.MaxThreads;
             var processorCount = Environment.ProcessorCount;
@@ -118,32 +119,45 @@ namespace Net.Chdk.Detectors.Software
             for (var i = 0; i <= count; i++)
                 versions[i] = i * offsets.Length / count;
 
+            var software = GetSoftware(detectors, encBuffer, decBuffers, ulBuffers, versions, offsets, count, progress);
+            progress.Reset();
+
+            return software;
+        }
+
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[][] decBuffers, ulong[][] ulBuffers, int[] versions, ulong?[] offsets, int count, ProgressState progress)
+        {
             if (count == 1)
             {
                 Logger.LogTrace("Detecting software in a single thread from {0} offsets", offsets.Length);
-                return GetSoftware(detectors, encBuffer, decBuffers[0], ulBuffers[0], versions[0], versions[1], offsets);
+                return GetSoftware(detectors, encBuffer, decBuffers[0], ulBuffers[0], versions[0], versions[1], offsets, progress);
             }
 
             Logger.LogTrace("Detecting software in {0} threads from {1} offsets", count, offsets.Length);
             return Enumerable.Range(0, count)
                 .AsParallel()
-                .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], ulBuffers[i], versions[i], versions[i + 1], offsets))
+                .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], ulBuffers[i], versions[i], versions[i + 1], offsets, progress))
                 .FirstOrDefault(s => s != null);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, int startVersion, int endVersion, ulong?[] offsets)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, int startIndex, int endIndex, ulong?[] offsets, ProgressState progress)
         {
-            return Enumerable.Range(startVersion, endVersion - startVersion)
-                .Select(v => GetSoftware(detectors, encBuffer, decBuffer, ulBuffer, offsets[v]))
-                .FirstOrDefault(s => s != null);
+            for (var index = startIndex; index < endIndex; index++)
+            {
+                var software = GetSoftware(detectors, encBuffer, decBuffer, ulBuffer, offsets[index]);
+                if (software != null)
+                    return software;
+                progress.Update();
+            }
+            return null;
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, ulong? offsets)
         {
-            decBuffer = Decode(encBuffer, decBuffer, ulBuffer, offsets);
-            if (decBuffer == null)
+            var buffer = Decode(encBuffer, decBuffer, ulBuffer, offsets);
+            if (buffer == null)
                 return null;
-            var software = DoGetSoftware(detectors, decBuffer);
+            var software = DoGetSoftware(detectors, buffer);
             if (software != null)
                 software.Encoding = GetEncoding(offsets);
             return software;
