@@ -128,7 +128,8 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong? offsets)
         {
-            if (!BinaryDecoder.Decode(encBuffer, decBuffer, offsets))
+            decBuffer = Decode(encBuffer, decBuffer, offsets);
+            if (decBuffer == null)
                 return null;
             var software = DoGetSoftware(detectors, decBuffer);
             if (software != null)
@@ -195,6 +196,15 @@ namespace Net.Chdk.Detectors.Software
             return product?.Name == null
                 ? SoftwareDetectors
                 : SoftwareDetectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
+        }
+
+        private byte[] Decode(byte[] encBuffer, byte[] decBuffer, ulong? offsets)
+        {
+            if (offsets == null)
+                return encBuffer;
+            if (BinaryDecoder.Decode(encBuffer, decBuffer, offsets))
+                return decBuffer;
+            return null;
         }
 
         private static SoftwareEncodingInfo GetEncodingInfo(ulong? offsets)
