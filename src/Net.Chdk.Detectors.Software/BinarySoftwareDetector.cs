@@ -113,11 +113,13 @@ namespace Net.Chdk.Detectors.Software
                 ? maxThreads
                 : processorCount;
 
+            var encBuffers = new byte[count][];
             var decBuffers = new byte[count][];
             var tmpBuffers1 = new byte[count][];
             var tmpBuffers2 = new byte[count][];
             for (var i = 0; i < count; i++)
             {
+                encBuffers[i] = new byte[encBuffer.Length];
                 decBuffers[i] = new byte[encBuffer.Length];
                 tmpBuffers1[i] = new byte[ChunkSize];
                 tmpBuffers2[i] = new byte[ChunkSize];
@@ -127,7 +129,7 @@ namespace Net.Chdk.Detectors.Software
             var decStreams = new Stream[count];
             for (var i = 0; i < count; i++)
             {
-                encStreams[i] = new MemoryStream(encBuffer);
+                encStreams[i] = new MemoryStream(encBuffers[i]);
                 decStreams[i] = new MemoryStream(decBuffers[i]);
             }
 
@@ -135,7 +137,7 @@ namespace Net.Chdk.Detectors.Software
             for (var i = 0; i <= count; i++)
                 versions[i] = i * offsets.Length / count;
 
-            var software = GetSoftware(detectors, encBuffer, offsets, count, decBuffers, tmpBuffers1, tmpBuffers2, encStreams, decStreams, versions);
+            var software = GetSoftware(detectors, offsets, count, encBuffers, decBuffers, tmpBuffers1, tmpBuffers2, encStreams, decStreams, versions);
 
             for (var i = 0; i < count; i++)
             {
@@ -146,18 +148,18 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, ulong?[] offsets, int count, byte[][] decBuffers, byte[][] tmpBuffers1, byte[][] tmpBuffers2, Stream[] encStreams, Stream[] decStreams, int[] versions)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, ulong?[] offsets, int count, byte[][] encBuffers, byte[][] decBuffers, byte[][] tmpBuffers1, byte[][] tmpBuffers2, Stream[] encStreams, Stream[] decStreams, int[] versions)
         {
             if (count == 1)
             {
                 Logger.LogTrace("Detecting software in a single thread from {0} offsets", offsets.Length);
-                return GetSoftware(detectors, encBuffer, decBuffers[0], encStreams[0], decStreams[0], tmpBuffers1[0], tmpBuffers2[0], versions[0], versions[1], offsets);
+                return GetSoftware(detectors, encBuffers[0], decBuffers[0], encStreams[0], decStreams[0], tmpBuffers1[0], tmpBuffers2[0], versions[0], versions[1], offsets);
             }
 
             Logger.LogTrace("Detecting software in {0} threads from {1} offsets", count, offsets.Length);
             return Enumerable.Range(0, count)
                 .AsParallel()
-                .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], encStreams[i], decStreams[i], tmpBuffers1[i], tmpBuffers2[i], versions[i], versions[i + 1], offsets))
+                .Select(i => GetSoftware(detectors, encBuffers[i], decBuffers[i], encStreams[i], decStreams[i], tmpBuffers1[i], tmpBuffers2[i], versions[i], versions[i + 1], offsets))
                 .FirstOrDefault(s => s != null);
         }
 
