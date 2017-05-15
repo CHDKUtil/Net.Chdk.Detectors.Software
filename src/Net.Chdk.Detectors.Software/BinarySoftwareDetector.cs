@@ -61,9 +61,9 @@ namespace Net.Chdk.Detectors.Software
         public SoftwareInfo UpdateSoftware(SoftwareInfo software, byte[] encBuffer)
         {
             var detectors = GetDetectors(software.Product);
-            var offsets = GetEncodingOffsets(software.Product, software.Camera, software.Encoding);
+            var encoding = GetEncoding(software.Product, software.Camera, software.Encoding);
 
-            var software2 = GetSoftware(detectors, encBuffer, offsets);
+            var software2 = GetSoftware(detectors, encBuffer, encoding);
             if (software2 != null)
             {
                 if (software2.Product.Created != null)
@@ -76,23 +76,19 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, ulong? offsets)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding)
         {
-            if (offsets == null)
+            if (encoding == null)
                 return GetSoftware(detectors, encBuffer);
-            if (offsets == 0)
+            if (encoding.Data == null)
                 return PlainGetSoftware(detectors, encBuffer);
             var decBuffer = new byte[encBuffer.Length];
             var ulBuffer = new ulong[0x100];
-            return GetSoftware(detectors, encBuffer, decBuffer, ulBuffer, offsets);
+            return GetSoftware(detectors, encBuffer, decBuffer, ulBuffer, encoding.Data);
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer)
         {
-            var software = PlainGetSoftware(detectors, encBuffer);
-            if (software != null)
-                return software;
-
             var maxThreads = Properties.Settings.Default.MaxThreads;
             var processorCount = Environment.ProcessorCount;
             var count = maxThreads > 0 && maxThreads < processorCount
@@ -109,11 +105,11 @@ namespace Net.Chdk.Detectors.Software
 
             var versions = new int[count + 1];
             for (var i = 0; i <= count; i++)
-                versions[i] = i * BinaryDecoder.MaxVersion / count + 1;
+                versions[i] = i * (BinaryDecoder.MaxVersion + 1) / count;
 
-            var offsets = new ulong[BinaryDecoder.MaxVersion];
+            var offsets = new ulong?[BinaryDecoder.MaxVersion + 1];
             for (var v = 0; v < BinaryDecoder.MaxVersion; v++)
-                offsets[v] = GetOffsets(v + 1);
+                offsets[v + 1] = GetOffsets(v + 1);
 
             if (count == 1)
             {
@@ -128,10 +124,10 @@ namespace Net.Chdk.Detectors.Software
                 .FirstOrDefault(s => s != null);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, int startVersion, int endVersion, ulong[] offsets)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, int startVersion, int endVersion, ulong?[] offsets)
         {
             return Enumerable.Range(startVersion, endVersion - startVersion)
-                .Select(v => GetSoftware(detectors, encBuffer, decBuffer, ulBuffer, offsets[v - 1]))
+                .Select(v => GetSoftware(detectors, encBuffer, decBuffer, ulBuffer, offsets[v]))
                 .FirstOrDefault(s => s != null);
         }
 
@@ -189,14 +185,14 @@ namespace Net.Chdk.Detectors.Software
             return true;
         }
 
-        private ulong? GetEncodingOffsets(SoftwareProductInfo product, SoftwareCameraInfo camera, SoftwareEncodingInfo encoding)
+        private SoftwareEncodingInfo GetEncoding(SoftwareProductInfo product, SoftwareCameraInfo camera, SoftwareEncodingInfo encoding)
         {
             if (encoding == null)
             {
                 var cameraModel = CameraProvider.GetCamera(product, camera);
-                encoding = cameraModel?.Encoding;
+                return cameraModel?.Encoding;
             }
-            return encoding?.Data;
+            return encoding;
         }
 
         private IEnumerable<IInnerBinarySoftwareDetector> GetDetectors(SoftwareProductInfo product)
