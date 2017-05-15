@@ -88,6 +88,17 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer)
         {
+            var offsets = GetOffsets();
+            var software = GetSoftware(detectors, encBuffer, offsets);
+            if (software != null)
+                return software;
+
+            var allOffsets = GetAllOffsets();
+            return GetSoftware(detectors, encBuffer, allOffsets);
+        }
+
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, ulong?[] offsets)
+        {
             var maxThreads = Properties.Settings.Default.MaxThreads;
             var processorCount = Environment.ProcessorCount;
             var count = maxThreads > 0 && maxThreads < processorCount
@@ -100,19 +111,15 @@ namespace Net.Chdk.Detectors.Software
 
             var versions = new int[count + 1];
             for (var i = 0; i <= count; i++)
-                versions[i] = i * (BinaryDecoder.MaxVersion + 1) / count;
-
-            var offsets = new ulong?[BinaryDecoder.MaxVersion + 1];
-            for (var v = 0; v < BinaryDecoder.MaxVersion; v++)
-                offsets[v + 1] = GetOffsets(v + 1);
+                versions[i] = i * offsets.Length / count;
 
             if (count == 1)
             {
-                Logger.LogTrace("Detecting software in a single thread");
+                Logger.LogTrace("Detecting software in a single thread from {0} offsets", offsets.Length);
                 return GetSoftware(detectors, encBuffer, decBuffers[0], versions[0], versions[1], offsets);
             }
 
-            Logger.LogTrace("Detecting software in {0} threads", count);
+            Logger.LogTrace("Detecting software in {0} threads from {1} offsets", count, offsets.Length);
             return Enumerable.Range(0, count)
                 .AsParallel()
                 .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], versions[i], versions[i + 1], offsets))
@@ -216,9 +223,54 @@ namespace Net.Chdk.Detectors.Software
             };
         }
 
+        private ulong?[] GetAllOffsets()
+        {
+            Logger.LogTrace("Building offsets");
+            var result = GetAllOfsets(new int[0])
+                .Select(GetOffsets)
+                .Cast<ulong?>()
+                .ToArray();
+            Logger.LogTrace("Building completed");
+            return result;
+        }
+
+        private static IEnumerable<int[]> GetAllOfsets(int[] prefix)
+        {
+            if (prefix.Count() == 8)
+            {
+                yield return prefix;
+            }
+            else
+            {
+                for (var i = 0; i < 8; i++)
+                {
+                    if (!prefix.Contains(i))
+                    {
+                        var prefix2 = prefix.Concat(new[] { i }).ToArray();
+                        var offsets2 = GetAllOfsets(prefix2);
+                        foreach (var offsets in offsets2)
+                            yield return offsets;
+                    }
+                }
+            }
+        }
+
+        private ulong?[] GetOffsets()
+        {
+            var offsets = new ulong?[BinaryDecoder.MaxVersion + 1];
+            for (var v = 0; v < BinaryDecoder.MaxVersion; v++)
+                offsets[v + 1] = GetOffsets(v + 1);
+            return offsets;
+        }
+
         private ulong GetOffsets(int version)
         {
             var offsets = BootProvider.Offsets[version - 1];
+            return GetOffsets(offsets);
+        }
+
+        private static ulong GetOffsets(int[] offsets)
+        {
             var uOffsets = 0ul;
             for (var index = 0; index < offsets.Length; index++)
                 uOffsets += (ulong)offsets[index] << (index << 3);
