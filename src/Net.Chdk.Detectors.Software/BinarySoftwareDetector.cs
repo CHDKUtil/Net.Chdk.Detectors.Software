@@ -83,7 +83,8 @@ namespace Net.Chdk.Detectors.Software
             if (offsets == 0)
                 return PlainGetSoftware(detectors, encBuffer);
             var decBuffer = new byte[encBuffer.Length];
-            return GetSoftware(detectors, encBuffer, decBuffer, offsets);
+            var ulBuffer = new ulong[0x100];
+            return GetSoftware(detectors, encBuffer, decBuffer, ulBuffer, offsets);
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer)
@@ -102,6 +103,10 @@ namespace Net.Chdk.Detectors.Software
             for (var i = 0; i < count; i++)
                 decBuffers[i] = new byte[encBuffer.Length];
 
+            var ulBuffers = new ulong[count][];
+            for (var i = 0; i < count; i++)
+                ulBuffers[i] = new ulong[0x100];
+
             var versions = new int[count + 1];
             for (var i = 0; i <= count; i++)
                 versions[i] = i * BinaryDecoder.MaxVersion / count + 1;
@@ -113,26 +118,26 @@ namespace Net.Chdk.Detectors.Software
             if (count == 1)
             {
                 Logger.LogTrace("Detecting software in a single thread");
-                return GetSoftware(detectors, encBuffer, decBuffers[0], versions[0], versions[1], offsets);
+                return GetSoftware(detectors, encBuffer, decBuffers[0], ulBuffers[0], versions[0], versions[1], offsets);
             }
 
             Logger.LogTrace("Detecting software in {0} threads", count);
             return Enumerable.Range(0, count)
                 .AsParallel()
-                .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], versions[i], versions[i + 1], offsets))
+                .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], ulBuffers[i], versions[i], versions[i + 1], offsets))
                 .FirstOrDefault(s => s != null);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, int startVersion, int endVersion, ulong[] offsets)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, int startVersion, int endVersion, ulong[] offsets)
         {
             return Enumerable.Range(startVersion, endVersion - startVersion)
-                .Select(v => GetSoftware(detectors, encBuffer, decBuffer, offsets[v - 1]))
+                .Select(v => GetSoftware(detectors, encBuffer, decBuffer, ulBuffer, offsets[v - 1]))
                 .FirstOrDefault(s => s != null);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong? offsets)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong[] ulBuffer, ulong? offsets)
         {
-            if (!BinaryDecoder.Decode(encBuffer, decBuffer, offsets))
+            if (!BinaryDecoder.Decode(encBuffer, decBuffer, ulBuffer, offsets))
                 return null;
             var software = DoGetSoftware(detectors, decBuffer);
             if (software != null)
