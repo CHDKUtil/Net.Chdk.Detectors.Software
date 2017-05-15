@@ -14,6 +14,8 @@ namespace Net.Chdk.Detectors.Software
     sealed class BinarySoftwareDetector : IInnerSoftwareDetector, IBinarySoftwareDetector
     {
         private const string EncodingName = "dancingbits";
+        private const int ChunkSize = 0x400;
+
         private const string HashName = "sha256";
 
         private ILogger Logger { get; }
@@ -83,7 +85,9 @@ namespace Net.Chdk.Detectors.Software
             if (encoding.Data == null)
                 return PlainGetSoftware(detectors, encBuffer);
             var decBuffer = new byte[encBuffer.Length];
-            return GetSoftware(detectors, encBuffer, decBuffer, encoding.Data);
+            var tmpBuffer1 = new byte[ChunkSize];
+            var tmpBuffer2 = new byte[ChunkSize];
+            return GetSoftware(detectors, encBuffer, decBuffer, tmpBuffer1, tmpBuffer2, encoding.Data);
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer)
@@ -106,8 +110,14 @@ namespace Net.Chdk.Detectors.Software
                 : processorCount;
 
             var decBuffers = new byte[count][];
+            var tmpBuffers1 = new byte[count][];
+            var tmpBuffers2 = new byte[count][];
             for (var i = 0; i < count; i++)
+            {
                 decBuffers[i] = new byte[encBuffer.Length];
+                tmpBuffers1[i] = new byte[ChunkSize];
+                tmpBuffers2[i] = new byte[ChunkSize];
+            }
 
             var versions = new int[count + 1];
             for (var i = 0; i <= count; i++)
@@ -116,26 +126,26 @@ namespace Net.Chdk.Detectors.Software
             if (count == 1)
             {
                 Logger.LogTrace("Detecting software in a single thread from {0} offsets", offsets.Length);
-                return GetSoftware(detectors, encBuffer, decBuffers[0], versions[0], versions[1], offsets);
+                return GetSoftware(detectors, encBuffer, decBuffers[0], tmpBuffers1[0], tmpBuffers2[0], versions[0], versions[1], offsets);
             }
 
             Logger.LogTrace("Detecting software in {0} threads from {1} offsets", count, offsets.Length);
             return Enumerable.Range(0, count)
                 .AsParallel()
-                .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], versions[i], versions[i + 1], offsets))
+                .Select(i => GetSoftware(detectors, encBuffer, decBuffers[i], tmpBuffers1[i], tmpBuffers2[i], versions[i], versions[i + 1], offsets))
                 .FirstOrDefault(s => s != null);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, int startVersion, int endVersion, ulong?[] offsets)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, byte[] tmpBuffer1, byte[] tmpBuffer2, int startVersion, int endVersion, ulong?[] offsets)
         {
             return Enumerable.Range(startVersion, endVersion - startVersion)
-                .Select(v => GetSoftware(detectors, encBuffer, decBuffer, offsets[v]))
+                .Select(v => GetSoftware(detectors, encBuffer, decBuffer, tmpBuffer1, tmpBuffer2, offsets[v]))
                 .FirstOrDefault(s => s != null);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong? offsets)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, byte[] tmpBuffer1, byte[] tmpBuffer2, ulong? offsets)
         {
-            decBuffer = Decode(encBuffer, decBuffer, offsets);
+            decBuffer = Decode(encBuffer, decBuffer, tmpBuffer1, tmpBuffer2, offsets);
             if (decBuffer == null)
                 return null;
             var software = DoGetSoftware(detectors, decBuffer);
@@ -214,14 +224,14 @@ namespace Net.Chdk.Detectors.Software
             };
         }
 
-        private byte[] Decode(byte[] encBuffer, byte[] decBuffer, ulong? offsets)
+        private byte[] Decode(byte[] encBuffer, byte[] decBuffer, byte[] tmpBuffer1, byte[] tmpBuffer2, ulong? offsets)
         {
             if (offsets == null)
                 return encBuffer;
             using (var encStream = new MemoryStream(encBuffer))
             using (var decStream = new MemoryStream(decBuffer))
             {
-                if (BinaryDecoder.Decode(encStream, decStream, offsets))
+                if (BinaryDecoder.Decode(encStream, decStream, tmpBuffer1, tmpBuffer2, offsets))
                     return decBuffer;
                 return null;
             }
