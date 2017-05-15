@@ -96,12 +96,12 @@ namespace Net.Chdk.Detectors.Software
                 : processorCount;
 
             var decBuffers = new byte[count][];
-            for (var i = 0; i < count; i++)
-                decBuffers[i] = new byte[encBuffer.Length];
-
             var ulBuffers = new ulong[count][];
             for (var i = 0; i < count; i++)
+            {
+                decBuffers[i] = new byte[encBuffer.Length];
                 ulBuffers[i] = new ulong[0x100];
+            }
 
             var versions = new int[count + 1];
             for (var i = 0; i <= count; i++)
