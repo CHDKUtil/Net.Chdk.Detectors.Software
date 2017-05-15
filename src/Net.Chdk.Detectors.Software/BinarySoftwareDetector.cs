@@ -135,10 +135,10 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, ulong? offsets)
         {
-            decBuffer = Decode(encBuffer, decBuffer, offsets);
-            if (decBuffer == null)
+            var buffer = Decode(encBuffer, decBuffer, offsets);
+            if (buffer == null)
                 return null;
-            var software = DoGetSoftware(detectors, decBuffer);
+            var software = DoGetSoftware(detectors, buffer);
             if (software != null)
                 software.Encoding = GetEncoding(offsets);
             return software;
