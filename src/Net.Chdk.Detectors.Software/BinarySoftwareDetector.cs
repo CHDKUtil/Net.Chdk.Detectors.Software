@@ -172,8 +172,16 @@ namespace Net.Chdk.Detectors.Software
         private static IEnumerable<int> SeekAfterMany(byte[] buffer, byte[] bytes)
         {
             for (var i = 0; i < buffer.Length - bytes.Length; i++)
-                if (Enumerable.Range(0, bytes.Length).All(j => buffer[i + j] == bytes[j]))
+                if (Equals(buffer, bytes, i))
                     yield return i + bytes.Length;
+        }
+
+        private static bool Equals(byte[] buffer, byte[] bytes, int start)
+        {
+            for (var j = 0; j < bytes.Length; j++)
+                if (buffer[start + j] != bytes[j])
+                    return false;
+            return true;
         }
 
         private ulong? GetEncodingOffsets(SoftwareProductInfo product, SoftwareCameraInfo camera, SoftwareEncodingInfo encoding)
