@@ -13,9 +13,6 @@ namespace Net.Chdk.Detectors.Software
 {
     sealed class BinarySoftwareDetector : IInnerSoftwareDetector, IBinarySoftwareDetector
     {
-        private const string EncodingName = "dancingbits";
-        private const int ChunkSize = 0x400;
-
         private const string HashName = "sha256";
 
         private ILogger Logger { get; }
@@ -82,16 +79,8 @@ namespace Net.Chdk.Detectors.Software
         {
             if (encoding == null)
                 return GetSoftware(detectors, encBuffer, progress);
-            if (encoding.Data == null)
-                return PlainGetSoftware(detectors, encBuffer);
-            var decBuffer = new byte[encBuffer.Length];
-            var tmpBuffer1 = new byte[ChunkSize];
-            var tmpBuffer2 = new byte[ChunkSize];
-            using (var encStream = new MemoryStream(encBuffer))
-            using (var decStream = new MemoryStream(decBuffer))
-            {
-                return GetSoftware(detectors, encBuffer, decBuffer, encStream, decStream, tmpBuffer1, tmpBuffer2, encoding.Data);
-            }
+            var worker = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer, encoding.Data);
+            return worker.GetSoftware(ProgressState.Empty);
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress)
@@ -114,119 +103,38 @@ namespace Net.Chdk.Detectors.Software
                 ? maxThreads
                 : processorCount;
 
-            var decBuffers = new byte[count][];
-            var tmpBuffers1 = new byte[count][];
-            var tmpBuffers2 = new byte[count][];
-            var decStreams = new Stream[count];
-            var encStreams = new Stream[count];
+            var workers = new BinaryDetectorWorker[count];
             for (var i = 0; i < count; i++)
             {
-                decBuffers[i] = new byte[encBuffer.Length];
-                tmpBuffers1[i] = new byte[ChunkSize];
-                tmpBuffers2[i] = new byte[ChunkSize];
-                encStreams[i] = new MemoryStream(encBuffer, false);
-                decStreams[i] = new MemoryStream(decBuffers[i]);
+                workers[i] = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer,
+                    i * offsets.Length / count, (i + 1) * offsets.Length / count, offsets);
             }
 
-            var versions = new int[count + 1];
-            for (var i = 0; i <= count; i++)
-                versions[i] = i * offsets.Length / count;
-
-            var software = GetSoftware(detectors, encBuffer, decBuffers, encStreams, decStreams, tmpBuffers1, tmpBuffers2, versions, offsets, count, progress);
+            var software = GetSoftware(workers, offsets, progress);
             progress.Reset();
 
             for (var i = 0; i < count; i++)
             {
-                encStreams[i].Dispose();
-                decStreams[i].Dispose();
+                workers[i].Dispose();
             }
 
             return software;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[][] decBuffers, Stream[] encStreams, Stream[] decStreams, byte[][] tmpBuffers1, byte[][] tmpBuffers2, int[] versions, uint?[] offsets, int count, ProgressState progress)
+        private SoftwareInfo GetSoftware(BinaryDetectorWorker[] workers, uint?[] offsets, ProgressState progress)
         {
+            var count = workers.Length;
             if (count == 1)
             {
-                Logger.LogTrace("Detecting software in a single thread from {0} offsets", offsets.Length);
-                return GetSoftware(detectors, encBuffer, decBuffers[0], encStreams[0], decStreams[0], tmpBuffers1[0], tmpBuffers2[0], versions[0], versions[1], offsets, progress);
+                Logger.LogDebug("Detecting software in a single thread from {0} offsets", offsets.Length);
+                return workers[0].GetSoftware(progress);
             }
 
-            Logger.LogTrace("Detecting software in {0} threads from {1} offsets", count, offsets.Length);
+            Logger.LogDebug("Detecting software in {0} threads from {1} offsets", count, offsets.Length);
             return Enumerable.Range(0, count)
                 .AsParallel()
-                .Select(i =>
-                    GetSoftware(detectors, encBuffer, decBuffers[i], encStreams[i], decStreams[i], tmpBuffers1[i], tmpBuffers2[i], versions[i], versions[i + 1], offsets, progress))
+                .Select(i => workers[i].GetSoftware(progress))
                 .FirstOrDefault(s => s != null);
-        }
-
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, Stream encStream, Stream decStream, byte[] tmpBuffer1, byte[] tmpBuffer2, int startIndex, int endIndex, uint?[] offsets, ProgressState progress)
-        {
-            for (var index = startIndex; index < endIndex; index++)
-            {
-                var software = GetSoftware(detectors, encBuffer, decBuffer, encStream, decStream, tmpBuffer1, tmpBuffer2, offsets[index]);
-                if (software != null)
-                    return software;
-                progress.Update();
-            }
-            return null;
-        }
-
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, byte[] decBuffer, Stream encStream, Stream decStream, byte[] tmpBuffer1, byte[] tmpBuffer2, uint? offsets)
-        {
-            encStream.Seek(0, SeekOrigin.Begin);
-            decStream.Seek(0, SeekOrigin.Begin);
-            var buffer = Decode(encBuffer, decBuffer, encStream, decStream, tmpBuffer1, tmpBuffer2, offsets);
-            if (buffer == null)
-                return null;
-            var software = DoGetSoftware(detectors, buffer);
-            if (software != null)
-                software.Encoding = GetEncoding(offsets);
-            return software;
-        }
-
-        private SoftwareInfo PlainGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] buffer)
-        {
-            Logger.LogTrace("Detecting software from plaintext");
-            var software = DoGetSoftware(detectors, buffer);
-            if (software != null)
-                software.Encoding = GetEncoding(null);
-            return software;
-        }
-
-        private static SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] buffer)
-        {
-            return detectors
-                .SelectMany(GetBytes)
-                .Select(t => GetSoftware(buffer, t.Item1, t.Item2))
-                .FirstOrDefault(s => s != null);
-        }
-
-        private static IEnumerable<Tuple<IInnerBinarySoftwareDetector, byte[]>> GetBytes(IInnerBinarySoftwareDetector d)
-        {
-            return d.Bytes.Select(b => Tuple.Create(d, b));
-        }
-
-        private static SoftwareInfo GetSoftware(byte[] buffer, IInnerBinarySoftwareDetector softwareDetector, byte[] bytes)
-        {
-            return SeekAfterMany(buffer, bytes)
-                .Select(i => softwareDetector.GetSoftware(buffer, i))
-                .FirstOrDefault(s => s != null);
-        }
-
-        private static IEnumerable<int> SeekAfterMany(byte[] buffer, byte[] bytes)
-        {
-            for (var i = 0; i < buffer.Length - bytes.Length; i++)
-                if (Equals(buffer, bytes, i))
-                    yield return i + bytes.Length;
-        }
-
-        private static bool Equals(byte[] buffer, byte[] bytes, int start)
-        {
-            for (var j = 0; j < bytes.Length; j++)
-                if (buffer[start + j] != bytes[j])
-                    return false;
-            return true;
         }
 
         private SoftwareEncodingInfo GetEncoding(SoftwareProductInfo product, SoftwareCameraInfo camera, SoftwareEncodingInfo encoding)
@@ -244,24 +152,6 @@ namespace Net.Chdk.Detectors.Software
             return product?.Name == null
                 ? SoftwareDetectors
                 : SoftwareDetectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
-        }
-
-        private byte[] Decode(byte[] encBuffer, byte[] decBuffer, Stream encStream, Stream decStream, byte[] tmpBuffer1, byte[] tmpBuffer2, uint? offsets)
-        {
-            if (offsets == null)
-                return encBuffer;
-            if (BinaryDecoder.Decode(encStream, decStream, tmpBuffer1, tmpBuffer2, offsets))
-                return decBuffer;
-            return null;
-        }
-
-        private static SoftwareEncodingInfo GetEncoding(uint? offsets)
-        {
-            return new SoftwareEncodingInfo
-            {
-                Name = offsets != null ? EncodingName : string.Empty,
-                Data = offsets
-            };
         }
 
         private uint?[] GetAllOffsetsExcept(uint?[] offsets)
