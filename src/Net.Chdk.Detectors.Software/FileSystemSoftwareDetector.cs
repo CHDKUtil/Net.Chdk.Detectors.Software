@@ -24,7 +24,7 @@ namespace Net.Chdk.Detectors.Software
             BootProvider = bootProvider;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress)
         {
             Logger.LogTrace("Detecting software from {0} file system", cardInfo.DriveLetter);
 
