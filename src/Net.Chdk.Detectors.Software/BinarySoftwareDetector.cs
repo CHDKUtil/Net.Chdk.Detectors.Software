@@ -93,7 +93,7 @@ namespace Net.Chdk.Detectors.Software
             if (software != null)
                 return software;
 
-            var allOffsets = GetAllOffsets();
+            var allOffsets = GetAllOffsetsExcept(offsets);
             var progressState = new ProgressState(allOffsets.Length, progress);
             return GetSoftware(detectors, encBuffer, allOffsets, progressState);
         }
@@ -237,10 +237,22 @@ namespace Net.Chdk.Detectors.Software
             };
         }
 
+        private ulong?[] GetAllOffsetsExcept(ulong?[] offsets)
+        {
+            Logger.LogTrace("Building offsets");
+            var result = GetAllOffsets(new int[0])
+                .Select(GetOffsets)
+                .Cast<ulong?>()
+                .Except(offsets)
+                .ToArray();
+            Logger.LogTrace("Building completed");
+            return result;
+        }
+
         private ulong?[] GetAllOffsets()
         {
             Logger.LogTrace("Building offsets");
-            var result = GetAllOfsets(new int[0])
+            var result = GetAllOffsets(new int[0])
                 .Select(GetOffsets)
                 .Cast<ulong?>()
                 .ToArray();
@@ -248,7 +260,7 @@ namespace Net.Chdk.Detectors.Software
             return result;
         }
 
-        private static IEnumerable<int[]> GetAllOfsets(int[] prefix)
+        private static IEnumerable<int[]> GetAllOffsets(int[] prefix)
         {
             if (prefix.Count() == 8)
             {
@@ -261,7 +273,7 @@ namespace Net.Chdk.Detectors.Software
                     if (!prefix.Contains(i))
                     {
                         var prefix2 = prefix.Concat(new[] { i }).ToArray();
-                        var offsets2 = GetAllOfsets(prefix2);
+                        var offsets2 = GetAllOffsets(prefix2);
                         foreach (var offsets in offsets2)
                             yield return offsets;
                     }
