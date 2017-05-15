@@ -2,6 +2,7 @@
 using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Validators;
+using System;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -12,7 +13,7 @@ namespace Net.Chdk.Detectors.Software
         {
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress)
         {
             Logger.LogTrace("Detecting software from {0} metadata", cardInfo.DriveLetter);
 
