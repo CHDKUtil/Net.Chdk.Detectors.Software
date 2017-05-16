@@ -6,6 +6,7 @@ using Net.Chdk.Providers.Boot;
 using Net.Chdk.Providers.Software;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -103,6 +104,9 @@ namespace Net.Chdk.Detectors.Software
                 ? maxThreads
                 : processorCount;
 
+            var watch = new Stopwatch();
+            watch.Start();
+
             var workers = new BinaryDetectorWorker[count];
             for (var i = 0; i < count; i++)
             {
@@ -116,6 +120,9 @@ namespace Net.Chdk.Detectors.Software
             {
                 workers[i].Dispose();
             }
+
+            watch.Stop();
+            Logger.LogDebug("Detecting software completed in {0}", watch.Elapsed);
 
             progress.Reset();
 
