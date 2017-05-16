@@ -13,8 +13,6 @@ namespace Net.Chdk.Detectors.Software
         private IEnumerable<IInnerBinarySoftwareDetector> Detectors { get; }
         private IBinaryDecoder BinaryDecoder { get; }
 
-        private readonly int startIndex;
-        private readonly int endIndex;
         private readonly byte[] encBuffer;
         private readonly byte[] decBuffer;
         private readonly uint?[] offsets;
@@ -26,9 +24,10 @@ namespace Net.Chdk.Detectors.Software
 
             this.encBuffer = encBuffer;
             this.decBuffer = new byte[encBuffer.Length];
-            this.startIndex = startIndex;
-            this.endIndex = endIndex;
-            this.offsets = offsets;
+
+            this.offsets = new uint?[endIndex - startIndex];
+            for (var i = 0; i < this.offsets.Length; i++)
+                this.offsets[i] = offsets[i + startIndex];
         }
 
         public BinaryDetectorWorker(IEnumerable<IInnerBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, uint? offsets)
@@ -45,9 +44,9 @@ namespace Net.Chdk.Detectors.Software
             if (offsets == null)
                 return PlainGetSoftware();
 
-            for (var index = startIndex; index < endIndex; index++)
+            for (var index = 0; index < offsets.Length; index++)
             {
-                var software = GetSoftware(index);
+                var software = GetSoftware(offsets[index]);
                 if (software != null)
                     return software;
                 progress.Update();
@@ -56,14 +55,14 @@ namespace Net.Chdk.Detectors.Software
             return null;
         }
 
-        private SoftwareInfo GetSoftware(int index)
+        private SoftwareInfo GetSoftware(uint? offsets)
         {
-            var buffer = Decode(offsets[index]);
+            var buffer = Decode(offsets);
             if (buffer == null)
                 return null;
             var software = GetSoftware(buffer);
             if (software != null)
-                software.Encoding = GetEncoding(offsets[index]);
+                software.Encoding = GetEncoding(offsets);
             return software;
         }
 
