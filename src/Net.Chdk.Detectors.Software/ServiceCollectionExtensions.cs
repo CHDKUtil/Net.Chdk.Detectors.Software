@@ -19,19 +19,20 @@ namespace Net.Chdk.Detectors.Software
         public static IServiceCollection AddBinarySoftwareDetector(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddSingleton<IInnerSoftwareDetector, BinarySoftwareDetector>();
+                .AddSingleton<IInnerSoftwareDetector, BinarySoftwareDetector>()
+                .AddSingleton<IBinarySoftwareDetector, BinarySoftwareDetector>();
         }
 
         public static IServiceCollection AddKnownBinarySoftwareDetector(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddSingleton<IBinarySoftwareDetector, KnownBinarySoftwareDetector>();
+                .AddSingleton<IInnerBinarySoftwareDetector, KnownBinarySoftwareDetector>();
         }
 
         public static IServiceCollection AddUnkownBinarySoftwareDetector(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddSingleton<IBinarySoftwareDetector, UnknownBinarySoftwareDetector>();
+                .AddSingleton<IInnerBinarySoftwareDetector, UnknownBinarySoftwareDetector>();
         }
 
         public static IServiceCollection AddFileSystemSoftwareDetector(this IServiceCollection serviceCollection)

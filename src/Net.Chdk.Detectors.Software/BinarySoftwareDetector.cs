@@ -7,11 +7,11 @@ using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
-    sealed class BinarySoftwareDetector : IInnerSoftwareDetector
+    sealed class BinarySoftwareDetector : IInnerSoftwareDetector, IBinarySoftwareDetector
     {
-        private IEnumerable<IBinarySoftwareDetector> SoftwareDetectors { get; }
+        private IEnumerable<IInnerBinarySoftwareDetector> SoftwareDetectors { get; }
 
-        public BinarySoftwareDetector(IEnumerable<IBinarySoftwareDetector> softwareDetectors)
+        public BinarySoftwareDetector(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors)
         {
             SoftwareDetectors = softwareDetectors;
         }
@@ -22,11 +22,21 @@ namespace Net.Chdk.Detectors.Software
             return GetSoftware(baseBath, progress, token);
         }
 
-        private SoftwareInfo GetSoftware(string basePath, IProgress<double> progress, CancellationToken token)
+        public SoftwareInfo GetSoftware(string basePath, IProgress<double> progress, CancellationToken token)
         {
             return SoftwareDetectors
                 .Select(d => d.GetSoftware(basePath, progress, token))
                 .FirstOrDefault(s => s != null);
+        }
+
+        public SoftwareInfo UpdateSoftware(SoftwareInfo software, byte[] buffer)
+        {
+            foreach (var detector in SoftwareDetectors)
+            {
+                if (detector.UpdateSoftware(ref software, buffer))
+                    return software;
+            }
+            return software;
         }
     }
 }

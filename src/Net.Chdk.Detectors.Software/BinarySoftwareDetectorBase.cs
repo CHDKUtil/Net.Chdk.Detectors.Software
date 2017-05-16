@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
-    abstract class BinarySoftwareDetectorBase : IBinarySoftwareDetector
+    abstract class BinarySoftwareDetectorBase : IInnerBinarySoftwareDetector
     {
         private const string HashName = "sha256";
 
@@ -54,7 +54,7 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        public SoftwareInfo UpdateSoftware(SoftwareInfo software, byte[] encBuffer)
+        public bool UpdateSoftware(ref SoftwareInfo software, byte[] encBuffer)
         {
             var detectors = GetDetectors(software.Product);
             var encoding = GetEncoding(software.Product, software.Camera, software.Encoding);
@@ -66,10 +66,11 @@ namespace Net.Chdk.Detectors.Software
                     software.Product.Created = software2.Product.Created;
                 if (software.Encoding == null)
                     software.Encoding = software2.Encoding;
+                return true;
             }
 
             software.Hash = HashProvider.GetHash(encBuffer, BootProvider.FileName, HashName);
-            return software;
+            return false;
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding,
