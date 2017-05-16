@@ -6,10 +6,10 @@ using System.Collections.Generic;
 
 namespace Net.Chdk.Detectors.Software
 {
-    sealed class BinarySoftwareDetector : BinarySoftwareDetectorBase
+    sealed class KnownBinarySoftwareDetector : BinarySoftwareDetectorBase
     {
-        public BinarySoftwareDetector(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
-            : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, loggerFactory.CreateLogger<BinarySoftwareDetector>())
+        public KnownBinarySoftwareDetector(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
+            : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, loggerFactory.CreateLogger<KnownBinarySoftwareDetector>())
         {
         }
 
