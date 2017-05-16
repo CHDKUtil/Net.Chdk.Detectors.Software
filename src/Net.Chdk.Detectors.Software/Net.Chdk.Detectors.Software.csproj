@@ -58,6 +58,8 @@
   <ItemGroup>
     <Compile Include="BinaryDetectorWorker.cs" />
     <Compile Include="BinarySoftwareDetector.cs" />
+    <Compile Include="BinarySoftwareDetectorBase.cs" />
+    <Compile Include="BinarySoftwareDetectorEx.cs" />
     <Compile Include="FileSystemSoftwareDetector.cs" />
     <Compile Include="IInnerSoftwareDetector.cs" />
     <Compile Include="MetadataSoftwareDetector.cs" />
