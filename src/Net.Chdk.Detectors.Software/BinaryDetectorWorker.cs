@@ -40,8 +40,8 @@ namespace Net.Chdk.Detectors.Software
                 this.offsets[i] = offsets[i + startIndex];
         }
 
-        public BinaryDetectorWorker(IEnumerable<IInnerBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, uint? offsets)
-            : this(detectors, binaryDecoder, encBuffer, 0, 1, offsets != null ? new[] { offsets } : null)
+        public BinaryDetectorWorker(IEnumerable<IInnerBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, SoftwareEncodingInfo encoding)
+            : this(detectors, binaryDecoder, encBuffer, 0, 1, encoding != null ? new[] { encoding.Data } : null)
         {
         }
 

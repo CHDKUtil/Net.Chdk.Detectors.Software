@@ -80,7 +80,7 @@ namespace Net.Chdk.Detectors.Software
         {
             if (encoding == null)
                 return GetSoftware(detectors, encBuffer, progress);
-            var worker = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer, encoding.Data);
+            var worker = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer, encoding);
             return worker.GetSoftware(ProgressState.Empty);
         }
 
