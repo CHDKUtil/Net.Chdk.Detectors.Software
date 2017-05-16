@@ -83,23 +83,28 @@ namespace Net.Chdk.Detectors.Software
         {
             if (encoding == null)
                 return GetSoftware(detectors, encBuffer, progress, token);
-            var worker = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer, encoding);
-            return worker.GetSoftware(ProgressState.Empty, token);
+            return DoGetSoftware(detectors, encBuffer, encoding, token);
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
         {
             if (!BinaryDecoder.ValidatePrefix(encBuffer, encBuffer.Length))
             {
-                var worker = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer, null);
-                var software = worker.GetSoftware(ProgressState.Empty, token);
+                var software = DoGetSoftware(detectors, encBuffer, null, token);
                 if (software != null)
                     return software;
             }
-
             var offsets = GetOffsets();
             var progressState = new ProgressState(offsets.Length, progress);
             return GetSoftware(detectors, encBuffer, offsets, progressState, token);
+        }
+
+        private SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
+        {
+            using (var worker = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer, encoding))
+            {
+                return worker.GetSoftware(ProgressState.Empty, token);
+            }
         }
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, uint?[] offsets, ProgressState progress, CancellationToken token)
