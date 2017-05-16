@@ -97,13 +97,6 @@ namespace Net.Chdk.Detectors.Software
             return DoGetSoftware(detectors, encBuffer, progress, token);
         }
 
-        protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
-        {
-            var offsets = GetOffsets();
-            var progressState = new ProgressState(offsets.Length, progress);
-            return GetSoftware(detectors, encBuffer, offsets, progressState, token);
-        }
-
         protected SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, CancellationToken token)
         {
             return DoGetSoftware(detectors, encBuffer, encoding: null, token: token);
@@ -117,13 +110,15 @@ namespace Net.Chdk.Detectors.Software
             }
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, uint?[] offsets, ProgressState progress, CancellationToken token)
+        protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
         {
             var maxThreads = Properties.Settings.Default.MaxThreads;
             var processorCount = Environment.ProcessorCount;
             var count = maxThreads > 0 && maxThreads < processorCount
                 ? maxThreads
                 : processorCount;
+
+            var offsets = GetOffsets();
 
             var watch = new Stopwatch();
             watch.Start();
@@ -135,7 +130,8 @@ namespace Net.Chdk.Detectors.Software
                     i * offsets.Length / count, (i + 1) * offsets.Length / count, offsets);
             }
 
-            var software = GetSoftware(workers, offsets, progress, token);
+            var progressState = new ProgressState(offsets.Length, progress);
+            var software = GetSoftware(workers, offsets, progressState, token);
 
             for (var i = 0; i < count; i++)
             {
@@ -145,7 +141,7 @@ namespace Net.Chdk.Detectors.Software
             watch.Stop();
             Logger.LogDebug("Detecting software completed in {0}", watch.Elapsed);
 
-            progress.Reset();
+            progressState.Reset();
 
             return software;
         }
