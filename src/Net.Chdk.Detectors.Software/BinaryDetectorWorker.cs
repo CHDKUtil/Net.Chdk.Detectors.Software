@@ -90,29 +90,35 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo GetSoftware(byte[] buffer)
         {
-            return Detectors
+            var tuples = Detectors
                 .SelectMany(GetBytes)
-                .Select(t => GetSoftware(buffer, t.Item1, t.Item2))
-                .FirstOrDefault(s => s != null);
+                .ToArray();
+            return GetSoftware(buffer, tuples);
+        }
+
+        private static SoftwareInfo GetSoftware(byte[] buffer, Tuple<IInnerBinarySoftwareDetector, byte[]>[] tuples)
+        {
+            var maxLength = tuples.Max(t => t.Item2.Length);
+            for (int i = 0; i < buffer.Length - maxLength; i++)
+            {
+                for (int j = 0; j < tuples.Length; j++)
+                {
+                    var bytes = tuples[j].Item2;
+                    var detector = tuples[j].Item1;
+                    if (Equals(buffer, bytes, i))
+                    {
+                        var software = detector.GetSoftware(buffer, i + bytes.Length);
+                        if (software != null)
+                            return software;
+                    }
+                }
+            }
+            return null;
         }
 
         private static IEnumerable<Tuple<IInnerBinarySoftwareDetector, byte[]>> GetBytes(IInnerBinarySoftwareDetector d)
         {
             return d.Bytes.Select(b => Tuple.Create(d, b));
-        }
-
-        private static SoftwareInfo GetSoftware(byte[] buffer, IInnerBinarySoftwareDetector softwareDetector, byte[] bytes)
-        {
-            return SeekAfterMany(buffer, bytes)
-                .Select(i => softwareDetector.GetSoftware(buffer, i))
-                .FirstOrDefault(s => s != null);
-        }
-
-        private static IEnumerable<int> SeekAfterMany(byte[] buffer, byte[] bytes)
-        {
-            for (var i = 0; i < buffer.Length - bytes.Length; i++)
-                if (Equals(buffer, bytes, i))
-                    yield return i + bytes.Length;
         }
 
         private static bool Equals(byte[] buffer, byte[] bytes, int start)
