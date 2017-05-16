@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Net.Chdk.Encoders.Binary;
-using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Boot;
 using Net.Chdk.Providers.Software;
@@ -13,7 +12,7 @@ using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
-    abstract class BinarySoftwareDetectorBase : IInnerSoftwareDetector, IBinarySoftwareDetector
+    abstract class BinarySoftwareDetectorBase : IBinarySoftwareDetector
     {
         private const string HashName = "sha256";
 
@@ -33,11 +32,6 @@ namespace Net.Chdk.Detectors.Software
             BootProvider = bootProvider;
             CameraProvider = cameraProvider;
             HashProvider = hashProvider;
-        }
-
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
-        {
-            return GetSoftware(cardInfo.GetRootPath(), progress, token);
         }
 
         public SoftwareInfo GetSoftware(string basePath, IProgress<double> progress, CancellationToken token)

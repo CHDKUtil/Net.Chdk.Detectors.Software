@@ -16,17 +16,21 @@ namespace Net.Chdk.Detectors.Software
                 .AddSingleton<IInnerSoftwareDetector, MetadataSoftwareDetector>();
         }
 
+        public static IServiceCollection AddBinarySoftwareDetector(this IServiceCollection serviceCollection)
+        {
+            return serviceCollection
+                .AddSingleton<IInnerSoftwareDetector, BinarySoftwareDetector>();
+        }
+
         public static IServiceCollection AddKnownBinarySoftwareDetector(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddSingleton<IInnerSoftwareDetector, KnownBinarySoftwareDetector>()
                 .AddSingleton<IBinarySoftwareDetector, KnownBinarySoftwareDetector>();
         }
 
         public static IServiceCollection AddUnkownBinarySoftwareDetector(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddSingleton<IInnerSoftwareDetector, UnknownBinarySoftwareDetector>()
                 .AddSingleton<IBinarySoftwareDetector, UnknownBinarySoftwareDetector>();
         }
 

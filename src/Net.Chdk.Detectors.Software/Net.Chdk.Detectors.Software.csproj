@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryDetectorWorker.cs" />
+    <Compile Include="BinarySoftwareDetector.cs" />
     <Compile Include="KnownBinarySoftwareDetector.cs" />
     <Compile Include="BinarySoftwareDetectorBase.cs" />
     <Compile Include="UnknownBinarySoftwareDetector.cs" />
