@@ -89,6 +89,14 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
         {
+            if (!BinaryDecoder.ValidatePrefix(encBuffer, encBuffer.Length))
+            {
+                var worker = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer, null);
+                var software = worker.GetSoftware(ProgressState.Empty, token);
+                if (software != null)
+                    return software;
+            }
+
             var offsets = GetOffsets();
             var progressState = new ProgressState(offsets.Length, progress);
             return GetSoftware(detectors, encBuffer, offsets, progressState, token);
