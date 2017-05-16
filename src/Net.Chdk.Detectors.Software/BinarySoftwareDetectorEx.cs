@@ -6,7 +6,6 @@ using Net.Chdk.Providers.Software;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
@@ -33,42 +32,15 @@ namespace Net.Chdk.Detectors.Software
             var watch = new Stopwatch();
             watch.Start();
 
-            var offsetCount = GetOffsetCount(0);
+            var offsetCount = Offsets.GetOffsetCount(OffsetLength);
             var offsets = new uint?[offsetCount];
             var index = 0;
-            GetAllOffsets(Offsets.Empty, offsets, ref index, 0);
+            Offsets.Empty.GetAllOffsets(offsets, ref index, 0, OffsetLength);
 
             watch.Stop();
             Logger.LogDebug("Building offsets completed in {0}", watch.Elapsed);
 
             return offsets;
-        }
-
-        private static void GetAllOffsets(Offsets prefix, uint?[] offsets, ref int index, int pos)
-        {
-            if (pos == OffsetLength)
-                offsets[index++] = GetOffsets(prefix);
-            else
-                GetOffsets(prefix, offsets, ref index, pos);
-        }
-
-        private static void GetOffsets(Offsets prefix, uint?[] offsets, ref int index, int pos)
-        {
-            for (var i = 0; i < OffsetLength; i++)
-            {
-                if (!prefix.Contains(i))
-                {
-                    var prefix2 = new Offsets(prefix, i);
-                    GetAllOffsets(prefix2, offsets, ref index, pos + 1);
-                }
-            }
-        }
-
-        private static int GetOffsetCount(int pos)
-        {
-            if (pos == OffsetLength)
-                return 1;
-            return (pos + 1) * GetOffsetCount(pos + 1);
         }
     }
 }

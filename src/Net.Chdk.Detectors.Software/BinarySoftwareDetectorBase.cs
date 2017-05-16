@@ -180,17 +180,5 @@ namespace Net.Chdk.Detectors.Software
         }
 
         protected abstract uint?[] GetOffsets();
-
-        protected static uint? GetOffsets(IEnumerable<int> offsets)
-        {
-            var uOffsets = 0u;
-            var index = 0;
-            foreach (var value in offsets)
-            {
-                uOffsets += (uint)value << (index << 2);
-                index++;
-            }
-            return uOffsets;
-        }
     }
 }

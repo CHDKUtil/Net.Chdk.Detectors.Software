@@ -26,5 +26,13 @@ namespace Net.Chdk.Detectors.Software
             var offsets = BootProvider.Offsets[version - 1];
             return GetOffsets(offsets);
         }
+
+        private static uint? GetOffsets(int[] offsets)
+        {
+            var uOffsets = 0u;
+            for (int index = 0; index < offsets.Length; index++)
+                uOffsets += (uint)offsets[index] << (index << 2);
+            return uOffsets;
+        }
     }
 }

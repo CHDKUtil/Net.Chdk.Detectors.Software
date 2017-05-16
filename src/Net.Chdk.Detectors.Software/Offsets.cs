@@ -59,7 +59,22 @@ namespace Net.Chdk.Detectors.Software
 
         #endregion
 
+        #region Static Members
+
+        private const int OffsetsLength = 8;
+
         public static Offsets Empty = new Offsets();
+
+        public static int GetOffsetCount(int maxLength)
+        {
+            if (maxLength == 1)
+                return 1;
+            return maxLength * GetOffsetCount(maxLength - 1);
+        }
+
+        #endregion
+
+        #region Instance Members
 
         private Node Last { get; }
 
@@ -84,5 +99,47 @@ namespace Net.Chdk.Detectors.Software
         {
             return GetEnumerator();
         }
+
+        public void GetAllOffsets(uint?[] offsets, ref int index, int pos, int maxLength)
+        {
+            if (pos == maxLength)
+                offsets[index++] = GetOffsets();
+            else
+                GetOffsets(offsets, ref index, pos, maxLength);
+        }
+
+        private void GetOffsets(uint?[] offsets, ref int index, int pos, int max)
+        {
+            for (var i = 0; i < OffsetsLength; i++)
+            {
+                if (!Contains(i))
+                {
+                    var prefix2 = new Offsets(this, i);
+                    prefix2.GetAllOffsets(offsets, ref index, pos + 1, max);
+                }
+            }
+        }
+
+        private bool Contains(int i)
+        {
+            for (var node = Last; node != null; node = node.Previous)
+                if (node.Value == i)
+                    return true;
+            return false;
+        }
+
+        private uint? GetOffsets()
+        {
+            var uOffsets = 0u;
+            var index = 0;
+            for (var node = Last; node != null; node = node.Previous)
+            {
+                uOffsets += (uint)node.Value << (index << 2);
+                index++;
+            }
+            return uOffsets;
+        }
+
+        #endregion
     }
 }
