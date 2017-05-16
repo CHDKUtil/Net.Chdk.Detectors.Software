@@ -1,10 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Net.Chdk.Encoders.Binary;
+using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Boot;
 using Net.Chdk.Providers.Software;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -13,6 +16,12 @@ namespace Net.Chdk.Detectors.Software
         public BinarySoftwareDetectorEx(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
             : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, loggerFactory.CreateLogger<BinarySoftwareDetectorEx>())
         {
+        }
+
+        protected override SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
+        {
+            return DoGetSoftware(detectors, encBuffer, token)
+                ?? base.DoGetSoftware(detectors, encBuffer, progress, token);
         }
 
         protected override uint?[] GetOffsets()

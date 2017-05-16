@@ -90,13 +90,23 @@ namespace Net.Chdk.Detectors.Software
         {
             if (!BinaryDecoder.ValidatePrefix(encBuffer, encBuffer.Length))
             {
-                var software = DoGetSoftware(detectors, encBuffer, null, token);
+                var software = DoGetSoftware(detectors, encBuffer, token);
                 if (software != null)
                     return software;
             }
+            return DoGetSoftware(detectors, encBuffer, progress, token);
+        }
+
+        protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
+        {
             var offsets = GetOffsets();
             var progressState = new ProgressState(offsets.Length, progress);
             return GetSoftware(detectors, encBuffer, offsets, progressState, token);
+        }
+
+        protected SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, CancellationToken token)
+        {
+            return DoGetSoftware(detectors, encBuffer, encoding: null, token: token);
         }
 
         private SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
