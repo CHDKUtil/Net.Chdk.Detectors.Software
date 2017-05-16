@@ -13,7 +13,7 @@ namespace Net.Chdk.Detectors.Software
         private const string EncodingName = "dancingbits";
         private const int ChunkSize = 0x400;
 
-        private IEnumerable<IInnerBinarySoftwareDetector> Detectors { get; }
+        private IEnumerable<IProductBinarySoftwareDetector> Detectors { get; }
         private IBinaryDecoder BinaryDecoder { get; }
 
         private readonly byte[] encBuffer;
@@ -24,7 +24,7 @@ namespace Net.Chdk.Detectors.Software
         private readonly MemoryStream decStream;
         private readonly uint?[] offsets;
 
-        public BinaryDetectorWorker(IEnumerable<IInnerBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, int startIndex, int endIndex, uint?[] offsets)
+        public BinaryDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, int startIndex, int endIndex, uint?[] offsets)
         {
             Detectors = detectors;
             BinaryDecoder = binaryDecoder;
@@ -44,7 +44,7 @@ namespace Net.Chdk.Detectors.Software
             }
         }
 
-        public BinaryDetectorWorker(IEnumerable<IInnerBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, SoftwareEncodingInfo encoding)
+        public BinaryDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, SoftwareEncodingInfo encoding)
             : this(detectors, binaryDecoder, encBuffer, 0, 1, encoding != null ? new[] { encoding.Data } : null)
         {
         }
@@ -99,7 +99,7 @@ namespace Net.Chdk.Detectors.Software
             return GetSoftware(buffer, tuples);
         }
 
-        private static SoftwareInfo GetSoftware(byte[] buffer, Tuple<IInnerBinarySoftwareDetector, byte[]>[] tuples)
+        private static SoftwareInfo GetSoftware(byte[] buffer, Tuple<IProductBinarySoftwareDetector, byte[]>[] tuples)
         {
             var maxLength = tuples.Max(t => t.Item2.Length);
             for (int i = 0; i < buffer.Length - maxLength; i++)
@@ -119,7 +119,7 @@ namespace Net.Chdk.Detectors.Software
             return null;
         }
 
-        private static IEnumerable<Tuple<IInnerBinarySoftwareDetector, byte[]>> GetBytes(IInnerBinarySoftwareDetector d)
+        private static IEnumerable<Tuple<IProductBinarySoftwareDetector, byte[]>> GetBytes(IProductBinarySoftwareDetector d)
         {
             return d.Bytes.Select(b => Tuple.Create(d, b));
         }

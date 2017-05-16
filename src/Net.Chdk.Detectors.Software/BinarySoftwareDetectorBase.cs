@@ -20,11 +20,11 @@ namespace Net.Chdk.Detectors.Software
         protected IBinaryDecoder BinaryDecoder { get; }
         protected IBootProvider BootProvider { get; }
 
-        private IEnumerable<IInnerBinarySoftwareDetector> SoftwareDetectors { get; }
+        private IEnumerable<IProductBinarySoftwareDetector> SoftwareDetectors { get; }
         private ICameraProvider CameraProvider { get; }
         private ISoftwareHashProvider HashProvider { get; }
 
-        protected BinarySoftwareDetectorBase(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
+        protected BinarySoftwareDetectorBase(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
         {
             Logger = logger;
             SoftwareDetectors = softwareDetectors;
@@ -72,7 +72,7 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding,
+        private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding,
             IProgress<double> progress = null, CancellationToken token = default(CancellationToken))
         {
             if (encoding == null)
@@ -80,19 +80,19 @@ namespace Net.Chdk.Detectors.Software
             return DoGetSoftware(detectors, encBuffer, encoding, token);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
+        private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
         {
             if (!BinaryDecoder.ValidatePrefix(encBuffer, encBuffer.Length))
                 return DoGetSoftware(detectors, encBuffer, token);
             return DoGetSoftware(detectors, encBuffer, progress, token);
         }
 
-        protected SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, CancellationToken token)
+        protected SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, CancellationToken token)
         {
             return DoGetSoftware(detectors, encBuffer, encoding: null, token: token);
         }
 
-        private SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
+        private SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
         {
             using (var worker = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer, encoding))
             {
@@ -100,7 +100,7 @@ namespace Net.Chdk.Detectors.Software
             }
         }
 
-        protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
+        protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
         {
             var maxThreads = Properties.Settings.Default.MaxThreads;
             var processorCount = Environment.ProcessorCount;
@@ -162,7 +162,7 @@ namespace Net.Chdk.Detectors.Software
             return encoding;
         }
 
-        private IEnumerable<IInnerBinarySoftwareDetector> GetDetectors(SoftwareProductInfo product)
+        private IEnumerable<IProductBinarySoftwareDetector> GetDetectors(SoftwareProductInfo product)
         {
             return product?.Name == null
                 ? SoftwareDetectors
