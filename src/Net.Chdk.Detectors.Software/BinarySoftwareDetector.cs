@@ -111,12 +111,13 @@ namespace Net.Chdk.Detectors.Software
             }
 
             var software = GetSoftware(workers, offsets, progress);
-            progress.Reset();
 
             for (var i = 0; i < count; i++)
             {
                 workers[i].Dispose();
             }
+
+            progress.Reset();
 
             return software;
         }
@@ -154,6 +155,17 @@ namespace Net.Chdk.Detectors.Software
                 : SoftwareDetectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
         }
 
+        private uint?[] GetAllOffsets()
+        {
+            Logger.LogTrace("Building offsets");
+            var result = GetAllOffsets(new int[0])
+                .Select(GetOffsets)
+                .Cast<uint?>()
+                .ToArray();
+            Logger.LogTrace("Building completed");
+            return result;
+        }
+
         private uint?[] GetAllOffsetsExcept(uint?[] offsets)
         {
             Logger.LogTrace("Building offsets");
@@ -161,17 +173,6 @@ namespace Net.Chdk.Detectors.Software
                 .Select(GetOffsets)
                 .Cast<uint?>()
                 .Except(offsets)
-                .ToArray();
-            Logger.LogTrace("Building completed");
-            return result;
-        }
-
-        private uint?[] GetAllOffsets()
-        {
-            Logger.LogTrace("Building offsets");
-            var result = GetAllOffsets(new int[0])
-                .Select(GetOffsets)
-                .Cast<uint?>()
                 .ToArray();
             Logger.LogTrace("Building completed");
             return result;

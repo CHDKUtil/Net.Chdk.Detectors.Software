@@ -17,10 +17,10 @@ namespace Net.Chdk.Detectors.Software
 
         private readonly byte[] encBuffer;
         private readonly byte[] decBuffer;
-        private readonly MemoryStream encStream;
-        private readonly MemoryStream decStream;
         private readonly byte[] tmpBuffer1;
         private readonly byte[] tmpBuffer2;
+        private readonly MemoryStream encStream;
+        private readonly MemoryStream decStream;
         private readonly uint?[] offsets;
 
         public BinaryDetectorWorker(IEnumerable<IInnerBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, int startIndex, int endIndex, uint?[] offsets)
@@ -30,10 +30,10 @@ namespace Net.Chdk.Detectors.Software
 
             this.encBuffer = encBuffer;
             this.decBuffer = new byte[encBuffer.Length];
-            this.encStream = new MemoryStream(encBuffer, false);
-            this.decStream = new MemoryStream(decBuffer);
             this.tmpBuffer1 = new byte[ChunkSize];
             this.tmpBuffer2 = new byte[ChunkSize];
+            this.encStream = new MemoryStream(this.encBuffer, false);
+            this.decStream = new MemoryStream(this.decBuffer);
 
             this.offsets = new uint?[endIndex - startIndex];
             for (var i = 0; i < this.offsets.Length; i++)
