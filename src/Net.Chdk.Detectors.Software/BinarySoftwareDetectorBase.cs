@@ -89,11 +89,7 @@ namespace Net.Chdk.Detectors.Software
         private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
         {
             if (!BinaryDecoder.ValidatePrefix(encBuffer, encBuffer.Length))
-            {
-                var software = DoGetSoftware(detectors, encBuffer, token);
-                if (software != null)
-                    return software;
-            }
+                return DoGetSoftware(detectors, encBuffer, token);
             return DoGetSoftware(detectors, encBuffer, progress, token);
         }
 
