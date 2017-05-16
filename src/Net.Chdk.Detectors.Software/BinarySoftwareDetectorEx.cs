@@ -35,12 +35,12 @@ namespace Net.Chdk.Detectors.Software
 
         private static IEnumerable<uint?> GetAllOffsets()
         {
-            return GetAllOffsets(new int[0])
+            return GetAllOffsets(Offsets.Empty)
                 .Select(GetOffsets)
                 .Cast<uint?>();
         }
 
-        private static IEnumerable<int[]> GetAllOffsets(int[] prefix)
+        private static IEnumerable<Offsets> GetAllOffsets(Offsets prefix)
         {
             if (prefix.Count() == 8)
             {
@@ -52,7 +52,7 @@ namespace Net.Chdk.Detectors.Software
                 {
                     if (!prefix.Contains(i))
                     {
-                        var prefix2 = prefix.Concat(new[] { i }).ToArray();
+                        var prefix2 = new Offsets(prefix, i);
                         var offsets2 = GetAllOffsets(prefix2);
                         foreach (var offsets in offsets2)
                             yield return offsets;

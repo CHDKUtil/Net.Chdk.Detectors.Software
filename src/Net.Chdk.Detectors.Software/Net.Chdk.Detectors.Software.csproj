@@ -63,6 +63,7 @@
     <Compile Include="FileSystemSoftwareDetector.cs" />
     <Compile Include="IInnerSoftwareDetector.cs" />
     <Compile Include="MetadataSoftwareDetector.cs" />
+    <Compile Include="Offsets.cs" />
     <Compile Include="ProgressState.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
