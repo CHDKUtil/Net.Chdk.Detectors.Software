@@ -131,7 +131,7 @@ namespace Net.Chdk.Detectors.Software
             }
 
             var progressState = new ProgressState(offsets.Length, progress);
-            var software = GetSoftware(workers, offsets, progressState, token);
+            var software = GetSoftware(workers, offsets.Length, progressState, token);
 
             for (var i = 0; i < count; i++)
             {
@@ -146,17 +146,17 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private SoftwareInfo GetSoftware(BinaryDetectorWorker[] workers, uint?[] offsets, ProgressState progress, CancellationToken token)
+        private SoftwareInfo GetSoftware(BinaryDetectorWorker[] workers, int offsetCount, ProgressState progress, CancellationToken token)
         {
-            var count = workers.Length;
-            if (count == 1)
+            var workerCount = workers.Length;
+            if (workerCount == 1)
             {
-                Logger.LogDebug("Detecting software in a single thread from {0} offsets", offsets.Length);
+                Logger.LogDebug("Detecting software in a single thread from {0} offsets", offsetCount);
                 return workers[0].GetSoftware(progress, token);
             }
 
-            Logger.LogDebug("Detecting software in {0} threads from {1} offsets", count, offsets.Length);
-            return Enumerable.Range(0, count)
+            Logger.LogDebug("Detecting software in {0} threads from {1} offsets", workerCount, offsetCount);
+            return Enumerable.Range(0, workerCount)
                 .AsParallel()
                 .Select(i => workers[i].GetSoftware(progress, token))
                 .FirstOrDefault(s => s != null);
