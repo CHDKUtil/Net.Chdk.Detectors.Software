@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -24,7 +25,7 @@ namespace Net.Chdk.Detectors.Software
             BootProvider = bootProvider;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
         {
             Logger.LogTrace("Detecting software from {0} file system", cardInfo.DriveLetter);
 

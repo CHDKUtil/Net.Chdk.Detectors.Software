@@ -4,6 +4,7 @@ using Net.Chdk.Model.Software;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -18,12 +19,12 @@ namespace Net.Chdk.Detectors.Software
             SoftwareDetectors = softwareDetectors;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
         {
             Logger.LogTrace("Detecting software from {0}", cardInfo.DriveLetter);
 
             return SoftwareDetectors
-                .Select(d => d.GetSoftware(cardInfo, progress))
+                .Select(d => d.GetSoftware(cardInfo, progress, token))
                 .FirstOrDefault(s => s != null);
         }
     }

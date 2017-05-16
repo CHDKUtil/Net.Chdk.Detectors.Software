@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -51,13 +52,14 @@ namespace Net.Chdk.Detectors.Software
             decStream.Dispose();
         }
 
-        public SoftwareInfo GetSoftware(ProgressState progress)
+        public SoftwareInfo GetSoftware(ProgressState progress, CancellationToken token)
         {
             if (offsets == null)
                 return PlainGetSoftware();
 
             for (var index = 0; index < offsets.Length; index++)
             {
+                token.ThrowIfCancellationRequested();
                 var software = GetSoftware(offsets[index]);
                 if (software != null)
                     return software;

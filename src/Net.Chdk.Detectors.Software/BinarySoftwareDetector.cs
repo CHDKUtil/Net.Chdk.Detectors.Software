@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -33,12 +34,12 @@ namespace Net.Chdk.Detectors.Software
             HashProvider = hashProvider;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
         {
-            return GetSoftware(cardInfo.GetRootPath(), progress);
+            return GetSoftware(cardInfo.GetRootPath(), progress, token);
         }
 
-        public SoftwareInfo GetSoftware(string basePath, IProgress<double> progress)
+        public SoftwareInfo GetSoftware(string basePath, IProgress<double> progress, CancellationToken token)
         {
             var fileName = BootProvider.FileName;
             var diskbootPath = Path.Combine(basePath, fileName);
@@ -52,7 +53,7 @@ namespace Net.Chdk.Detectors.Software
             }
 
             var encBuffer = File.ReadAllBytes(diskbootPath);
-            var software = GetSoftware(SoftwareDetectors, encBuffer, progress);
+            var software = GetSoftware(SoftwareDetectors, encBuffer, progress, token);
             if (software != null)
                 software.Hash = HashProvider.GetHash(encBuffer, fileName, HashName);
             return software;
@@ -76,27 +77,28 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding, IProgress<double> progress = null)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding,
+            IProgress<double> progress = null, CancellationToken token = default(CancellationToken))
         {
             if (encoding == null)
-                return GetSoftware(detectors, encBuffer, progress);
+                return GetSoftware(detectors, encBuffer, progress, token);
             var worker = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer, encoding);
-            return worker.GetSoftware(ProgressState.Empty);
+            return worker.GetSoftware(ProgressState.Empty, token);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
         {
             var offsets = GetOffsets();
-            var software = GetSoftware(detectors, encBuffer, offsets, ProgressState.Empty);
+            var software = GetSoftware(detectors, encBuffer, offsets, ProgressState.Empty, token);
             if (software != null)
                 return software;
 
             var allOffsets = GetAllOffsetsExcept(offsets);
             var progressState = new ProgressState(allOffsets.Length, progress);
-            return GetSoftware(detectors, encBuffer, allOffsets, progressState);
+            return GetSoftware(detectors, encBuffer, allOffsets, progressState, token);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, uint?[] offsets, ProgressState progress)
+        private SoftwareInfo GetSoftware(IEnumerable<IInnerBinarySoftwareDetector> detectors, byte[] encBuffer, uint?[] offsets, ProgressState progress, CancellationToken token)
         {
             var maxThreads = Properties.Settings.Default.MaxThreads;
             var processorCount = Environment.ProcessorCount;
@@ -114,7 +116,7 @@ namespace Net.Chdk.Detectors.Software
                     i * offsets.Length / count, (i + 1) * offsets.Length / count, offsets);
             }
 
-            var software = GetSoftware(workers, offsets, progress);
+            var software = GetSoftware(workers, offsets, progress, token);
 
             for (var i = 0; i < count; i++)
             {
@@ -129,19 +131,19 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private SoftwareInfo GetSoftware(BinaryDetectorWorker[] workers, uint?[] offsets, ProgressState progress)
+        private SoftwareInfo GetSoftware(BinaryDetectorWorker[] workers, uint?[] offsets, ProgressState progress, CancellationToken token)
         {
             var count = workers.Length;
             if (count == 1)
             {
                 Logger.LogDebug("Detecting software in a single thread from {0} offsets", offsets.Length);
-                return workers[0].GetSoftware(progress);
+                return workers[0].GetSoftware(progress, token);
             }
 
             Logger.LogDebug("Detecting software in {0} threads from {1} offsets", count, offsets.Length);
             return Enumerable.Range(0, count)
                 .AsParallel()
-                .Select(i => workers[i].GetSoftware(progress))
+                .Select(i => workers[i].GetSoftware(progress, token))
                 .FirstOrDefault(s => s != null);
         }
 
