@@ -36,9 +36,12 @@ namespace Net.Chdk.Detectors.Software
             this.encStream = new MemoryStream(this.encBuffer, false);
             this.decStream = new MemoryStream(this.decBuffer);
 
-            this.offsets = new uint?[endIndex - startIndex];
-            for (var i = 0; i < this.offsets.Length; i++)
-                this.offsets[i] = offsets[i + startIndex];
+            if (offsets != null)
+            {
+                this.offsets = new uint?[endIndex - startIndex];
+                for (var i = 0; i < this.offsets.Length; i++)
+                    this.offsets[i] = offsets[i + startIndex];
+            }
         }
 
         public BinaryDetectorWorker(IEnumerable<IInnerBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, SoftwareEncodingInfo encoding)
