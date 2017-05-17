@@ -15,7 +15,6 @@ namespace Net.Chdk.Detectors.Software
         private const int ChunkSize = 0x400;
 
         private IEnumerable<IProductBinarySoftwareDetector> Detectors { get; }
-        private IBinaryDecoder BinaryDecoder { get; }
 
         private readonly byte[] encBuffer;
         private readonly byte[] decBuffer;
@@ -23,12 +22,12 @@ namespace Net.Chdk.Detectors.Software
         private readonly byte[] tmpBuffer2;
         private readonly MemoryStream encStream;
         private readonly MemoryStream decStream;
+        private readonly Func<uint?, bool> decode;
         private readonly uint?[] offsets;
 
         public BinaryDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, int startIndex, int endIndex, uint?[] offsets)
         {
             Detectors = detectors;
-            BinaryDecoder = binaryDecoder;
 
             this.encBuffer = encBuffer;
             this.decBuffer = new byte[encBuffer.Length];
@@ -36,6 +35,7 @@ namespace Net.Chdk.Detectors.Software
             this.tmpBuffer2 = new byte[ChunkSize];
             this.encStream = new MemoryStream(this.encBuffer, false);
             this.decStream = new MemoryStream(this.decBuffer);
+            this.decode = o => binaryDecoder.Decode(encStream, decStream, tmpBuffer1, tmpBuffer2, o);
 
             if (offsets != null)
             {
@@ -145,7 +145,7 @@ namespace Net.Chdk.Detectors.Software
                 return encBuffer;
             encStream.Seek(0, SeekOrigin.Begin);
             decStream.Seek(0, SeekOrigin.Begin);
-            if (BinaryDecoder.Decode(encStream, decStream, tmpBuffer1, tmpBuffer2, offsets))
+            if (decode(offsets))
                 return decBuffer;
             return null;
         }
