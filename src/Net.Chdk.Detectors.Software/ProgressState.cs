@@ -11,6 +11,7 @@ namespace Net.Chdk.Detectors.Software
         private readonly object @lock = new object();
         private readonly int count;
         private int index;
+        private int completed;
 
         private ProgressState()
         {
@@ -35,6 +36,13 @@ namespace Net.Chdk.Detectors.Software
             Interlocked.Exchange(ref index, 0);
             Report();
         }
+
+        public void SetCompleted()
+        {
+            Interlocked.Increment(ref completed);
+        }
+
+        public bool IsCompleted => completed > 0;
 
         private void Report()
         {

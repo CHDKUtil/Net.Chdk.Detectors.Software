@@ -63,10 +63,15 @@ namespace Net.Chdk.Detectors.Software
 
             for (var index = 0; index < offsets.Length; index++)
             {
+                if (progress.IsCompleted)
+                    return null;
                 token.ThrowIfCancellationRequested();
                 var software = GetSoftware(offsets[index]);
                 if (software != null)
+                {
+                    progress.SetCompleted();
                     return software;
+                }
                 progress.Update();
             }
 
