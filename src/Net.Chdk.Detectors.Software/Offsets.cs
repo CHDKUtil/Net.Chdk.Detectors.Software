@@ -8,7 +8,7 @@
 
         public static Offsets Empty = new Offsets();
 
-        public static int GetOffsetCount(int maxLength)
+        public static int GetOffsetCount(int maxLength = OffsetsLength)
         {
             if (maxLength == 1)
                 return 1;
