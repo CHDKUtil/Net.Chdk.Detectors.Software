@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
@@ -124,6 +125,7 @@ namespace Net.Chdk.Detectors.Software
             return d.Bytes.Select(b => Tuple.Create(d, b));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool Equals(byte[] buffer, byte[] bytes, int start)
         {
             for (var j = 0; j < bytes.Length; j++)
