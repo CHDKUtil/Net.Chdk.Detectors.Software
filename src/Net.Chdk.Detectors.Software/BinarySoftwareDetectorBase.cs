@@ -59,6 +59,8 @@ namespace Net.Chdk.Detectors.Software
             var detectors = GetDetectors(software.Product);
             var encoding = GetEncoding(software.Product, software.Camera, software.Encoding);
 
+            software.Hash = HashProvider.GetHash(encBuffer, BootProvider.FileName, HashName);
+
             var software2 = GetSoftware(detectors, encBuffer, encoding);
             if (software2 != null)
             {
@@ -69,7 +71,6 @@ namespace Net.Chdk.Detectors.Software
                 return true;
             }
 
-            software.Hash = HashProvider.GetHash(encBuffer, BootProvider.FileName, HashName);
             return false;
         }
 
