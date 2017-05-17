@@ -1,64 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-namespace Net.Chdk.Detectors.Software
+﻿namespace Net.Chdk.Detectors.Software
 {
-    sealed class Offsets : IEnumerable<int>
+    struct Offsets
     {
-        #region Node
-
-        private sealed class Node
-        {
-            public int Value { get; }
-            public Node Previous { get; }
-
-            public Node(int value, Node previous)
-            {
-                Value = value;
-                Previous = previous;
-            }
-        }
-
-        #endregion
-
-        #region Enumerator
-
-        private sealed class Enumerator : IEnumerator<int>
-        {
-            private Offsets offsets;
-            private Node node;
-
-            public Enumerator(Offsets offsets)
-            {
-                this.offsets = offsets;
-            }
-
-            public void Dispose()
-            {
-                offsets = null;
-                node = null;
-            }
-
-            public void Reset()
-            {
-                node = null;
-            }
-
-            public int Current => node.Value;
-
-            public bool MoveNext()
-            {
-                node = node != null
-                    ? node.Previous
-                    : offsets.Last;
-                return node != null;
-            }
-
-            object IEnumerator.Current => Current;
-        }
-
-        #endregion
-
         #region Static Members
 
         private const int OffsetsLength = 8;
@@ -76,68 +19,45 @@ namespace Net.Chdk.Detectors.Software
 
         #region Instance Members
 
-        private Node Last { get; }
-
-        private Offsets()
-        {
-        }
+        private uint Value { get; }
+        private int Length { get; }
+        private int Mask { get; }
 
         public Offsets(Offsets prefix, int last)
         {
-            var previous = prefix.Last != null
-                ? new Node(prefix.Last.Value, prefix.Last.Previous)
-                : null;
-            Last = new Node(last, previous);
+            Value = prefix.Value + ((uint)last << (prefix.Length << 2));
+            Length = prefix.Length + 1;
+            Mask = prefix.Mask | (1 << last);
         }
 
-        public IEnumerator<int> GetEnumerator()
+        public void GetAllOffsets(uint?[] offsets, ref int index)
         {
-            return new Enumerator(this);
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public void GetAllOffsets(uint?[] offsets, ref int index, int pos, int maxLength)
-        {
-            if (pos == maxLength)
+            if (Length == OffsetsLength)
                 offsets[index++] = GetOffsets();
             else
-                GetOffsets(offsets, ref index, pos, maxLength);
+                GetOffsets(offsets, ref index);
         }
 
-        private void GetOffsets(uint?[] offsets, ref int index, int pos, int max)
+        private void GetOffsets(uint?[] offsets, ref int index)
         {
             for (var i = 0; i < OffsetsLength; i++)
             {
                 if (!Contains(i))
                 {
                     var prefix2 = new Offsets(this, i);
-                    prefix2.GetAllOffsets(offsets, ref index, pos + 1, max);
+                    prefix2.GetAllOffsets(offsets, ref index);
                 }
             }
         }
 
         private bool Contains(int i)
         {
-            for (var node = Last; node != null; node = node.Previous)
-                if (node.Value == i)
-                    return true;
-            return false;
+            return (Mask & (1 << i)) != 0;
         }
 
         private uint? GetOffsets()
         {
-            var uOffsets = 0u;
-            var index = 0;
-            for (var node = Last; node != null; node = node.Previous)
-            {
-                uOffsets += (uint)node.Value << (index << 2);
-                index++;
-            }
-            return uOffsets;
+            return Value;
         }
 
         #endregion

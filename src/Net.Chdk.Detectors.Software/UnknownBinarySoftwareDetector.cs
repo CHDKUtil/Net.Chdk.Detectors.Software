@@ -35,7 +35,7 @@ namespace Net.Chdk.Detectors.Software
             var offsetCount = Offsets.GetOffsetCount(OffsetLength);
             var offsets = new uint?[offsetCount];
             var index = 0;
-            Offsets.Empty.GetAllOffsets(offsets, ref index, 0, OffsetLength);
+            Offsets.Empty.GetAllOffsets(offsets, ref index);
 
             watch.Stop();
             Logger.LogDebug("Building offsets completed in {0}", watch.Elapsed);
