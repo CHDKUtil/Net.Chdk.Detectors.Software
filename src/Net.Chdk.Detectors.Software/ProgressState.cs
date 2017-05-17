@@ -19,8 +19,6 @@ namespace Net.Chdk.Detectors.Software
 
         public ProgressState(int count, IProgress<double> progress)
         {
-            if (progress == null)
-                throw new ArgumentNullException(nameof(progress));
             this.count = count;
             this.progress = progress;
         }
