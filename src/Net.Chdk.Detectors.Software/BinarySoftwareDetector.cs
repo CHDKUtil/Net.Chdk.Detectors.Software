@@ -29,14 +29,10 @@ namespace Net.Chdk.Detectors.Software
                 .FirstOrDefault(s => s != null);
         }
 
-        public SoftwareInfo UpdateSoftware(SoftwareInfo software, byte[] buffer)
+        public bool UpdateSoftware(SoftwareInfo software, byte[] buffer)
         {
-            foreach (var detector in SoftwareDetectors)
-            {
-                if (detector.UpdateSoftware(ref software, buffer))
-                    return software;
-            }
-            return software;
+            return SoftwareDetectors
+                .Any(d => d.UpdateSoftware(software, buffer));
         }
     }
 }

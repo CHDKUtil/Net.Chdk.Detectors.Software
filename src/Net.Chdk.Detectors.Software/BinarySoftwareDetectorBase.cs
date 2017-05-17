@@ -54,7 +54,7 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        public bool UpdateSoftware(ref SoftwareInfo software, byte[] encBuffer)
+        public bool UpdateSoftware(SoftwareInfo software, byte[] encBuffer)
         {
             var detectors = GetDetectors(software.Product);
             var encoding = GetEncoding(software.Product, software.Camera, software.Encoding);
