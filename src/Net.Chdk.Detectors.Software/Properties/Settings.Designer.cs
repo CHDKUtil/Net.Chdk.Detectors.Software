@@ -34,5 +34,17 @@ namespace Net.Chdk.Detectors.Software.Properties {
                 this["MaxThreads"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShuffleOffsets {
+            get {
+                return ((bool)(this["ShuffleOffsets"]));
+            }
+            set {
+                this["ShuffleOffsets"] = value;
+            }
+        }
     }
 }
