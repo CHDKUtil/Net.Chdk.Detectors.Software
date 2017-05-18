@@ -105,7 +105,7 @@ namespace Net.Chdk.Detectors.Software
             return GetSoftware(buffer, tuples);
         }
 
-        private static SoftwareInfo GetSoftware(byte[] buffer, Tuple<IProductBinarySoftwareDetector, byte[]>[] tuples)
+        private static SoftwareInfo GetSoftware(byte[] buffer, Tuple<Func<byte[], int, SoftwareInfo>, byte[]>[] tuples)
         {
             var maxLength = tuples.Max(t => t.Item2.Length);
             for (int i = 0; i < buffer.Length - maxLength; i++)
@@ -113,10 +113,10 @@ namespace Net.Chdk.Detectors.Software
                 for (int j = 0; j < tuples.Length; j++)
                 {
                     var bytes = tuples[j].Item2;
-                    var detector = tuples[j].Item1;
+                    var getSoftware = tuples[j].Item1;
                     if (Equals(buffer, bytes, i))
                     {
-                        var software = detector.GetSoftware(buffer, i + bytes.Length);
+                        var software = getSoftware(buffer, i + bytes.Length);
                         if (software != null)
                             return software;
                     }
@@ -125,9 +125,9 @@ namespace Net.Chdk.Detectors.Software
             return null;
         }
 
-        private static IEnumerable<Tuple<IProductBinarySoftwareDetector, byte[]>> GetBytes(IProductBinarySoftwareDetector d)
+        private static IEnumerable<Tuple<Func<byte[], int, SoftwareInfo>, byte[]>> GetBytes(IProductBinarySoftwareDetector d)
         {
-            return d.Bytes.Select(b => Tuple.Create(d, b));
+            return d.Bytes.Select(b => Tuple.Create<Func<byte[], int, SoftwareInfo>, byte[]>(d.GetSoftware, b));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
