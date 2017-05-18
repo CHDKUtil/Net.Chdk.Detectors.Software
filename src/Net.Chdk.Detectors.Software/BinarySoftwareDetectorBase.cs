@@ -148,9 +148,22 @@ namespace Net.Chdk.Detectors.Software
             }
 
             Logger.LogDebug("Detecting software in {0} threads from {1} offsets", workerCount, offsetCount);
-            return Enumerable.Range(0, workerCount)
-                .AsParallel()
-                .Select(i => workers[i].GetSoftware(progress, token))
+
+            var threads = new Thread[workerCount];
+            var results = new SoftwareInfo[workerCount];
+            for (var j = 0; j < threads.Length; j++)
+            {
+                var i = j;
+                threads[i] = new Thread(() => results[i] = workers[i].GetSoftware(progress, token));
+            }
+
+            foreach (var thread in threads)
+                thread.Start();
+
+            foreach (var thread in threads)
+                thread.Join();
+
+            return results
                 .FirstOrDefault(s => s != null);
         }
 
