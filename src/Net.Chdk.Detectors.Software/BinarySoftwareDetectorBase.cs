@@ -89,13 +89,13 @@ namespace Net.Chdk.Detectors.Software
         private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
         {
             if (!BinaryDecoder.ValidatePrefix(encBuffer, encBuffer.Length))
-                return DoGetSoftware(detectors, encBuffer, token);
+                return PlainGetSoftware(detectors, encBuffer, token);
             return DoGetSoftware(detectors, encBuffer, progress, token);
         }
 
-        protected SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, CancellationToken token)
+        protected SoftwareInfo PlainGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, CancellationToken token)
         {
-            return DoGetSoftware(detectors, encBuffer, encoding: null, token: token);
+            return DoGetSoftware(detectors, encBuffer, new SoftwareEncodingInfo(), token);
         }
 
         private SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
