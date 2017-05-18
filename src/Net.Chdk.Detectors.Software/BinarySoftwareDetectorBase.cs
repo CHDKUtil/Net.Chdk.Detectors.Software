@@ -50,7 +50,11 @@ namespace Net.Chdk.Detectors.Software
             var encBuffer = File.ReadAllBytes(diskbootPath);
             var software = GetSoftware(SoftwareDetectors, encBuffer, progress, token);
             if (software != null)
+            {
+                if (software.Product.Created == null)
+                    software.Product.Created = File.GetCreationTimeUtc(diskbootPath);
                 software.Hash = HashProvider.GetHash(encBuffer, fileName, HashName);
+            }
             return software;
         }
 
