@@ -47,25 +47,25 @@ namespace Net.Chdk.Detectors.Software
                 return null;
             }
 
-            var encBuffer = File.ReadAllBytes(diskbootPath);
-            var software = GetSoftware(SoftwareDetectors, encBuffer, progress, token);
+            var inBuffer = File.ReadAllBytes(diskbootPath);
+            var software = GetSoftware(SoftwareDetectors, inBuffer, progress, token);
             if (software != null)
             {
                 if (software.Product.Created == null)
                     software.Product.Created = File.GetCreationTimeUtc(diskbootPath);
-                software.Hash = HashProvider.GetHash(encBuffer, fileName, HashName);
+                software.Hash = HashProvider.GetHash(inBuffer, fileName, HashName);
             }
             return software;
         }
 
-        public bool UpdateSoftware(SoftwareInfo software, byte[] encBuffer)
+        public bool UpdateSoftware(SoftwareInfo software, byte[] inBuffer)
         {
             var detectors = GetDetectors(software.Product);
             var encoding = GetEncoding(software.Product, software.Camera, software.Encoding);
 
-            software.Hash = HashProvider.GetHash(encBuffer, BootProvider.FileName, HashName);
+            software.Hash = HashProvider.GetHash(inBuffer, BootProvider.FileName, HashName);
 
-            var software2 = GetSoftware(detectors, encBuffer, encoding);
+            var software2 = GetSoftware(detectors, inBuffer, encoding);
             if (software2 != null)
             {
                 if (software2.Product.Created != null)
@@ -78,35 +78,38 @@ namespace Net.Chdk.Detectors.Software
             return false;
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding,
+        private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, SoftwareEncodingInfo encoding,
             IProgress<double> progress = null, CancellationToken token = default(CancellationToken))
         {
             if (encoding == null)
-                return GetSoftware(detectors, encBuffer, progress, token);
-            return DoGetSoftware(detectors, encBuffer, encoding, token);
+                return GetSoftware(detectors, inBuffer, progress, token);
+            return DoGetSoftware(detectors, inBuffer, encoding, token);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
+        private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, IProgress<double> progress, CancellationToken token)
         {
-            if (!BinaryDecoder.ValidatePrefix(encBuffer, encBuffer.Length))
-                return DoGetSoftware(detectors, encBuffer, token);
-            return DoGetSoftware(detectors, encBuffer, progress, token);
+            if (!BinaryDecoder.ValidatePrefix(inBuffer, inBuffer.Length))
+                return PlainGetSoftware(detectors, inBuffer, token);
+            return DoGetSoftware(detectors, inBuffer, progress, token);
         }
 
-        protected SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, CancellationToken token)
+        protected SoftwareInfo PlainGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, CancellationToken token)
         {
-            return DoGetSoftware(detectors, encBuffer, encoding: null, token: token);
-        }
-
-        private SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
-        {
-            using (var worker = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer, encoding))
+            using (var worker = new BinaryDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, new SoftwareEncodingInfo()))
             {
                 return worker.GetSoftware(ProgressState.Empty, token);
             }
         }
 
-        protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] encBuffer, IProgress<double> progress, CancellationToken token)
+        private SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
+        {
+            using (var worker = new BinaryDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, encoding))
+            {
+                return worker.GetSoftware(ProgressState.Empty, token);
+            }
+        }
+
+        protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, IProgress<double> progress, CancellationToken token)
         {
             var maxThreads = Properties.Settings.Default.MaxThreads;
             var processorCount = Environment.ProcessorCount;
@@ -122,7 +125,7 @@ namespace Net.Chdk.Detectors.Software
             var workers = new BinaryDetectorWorker[count];
             for (var i = 0; i < count; i++)
             {
-                workers[i] = new BinaryDetectorWorker(detectors, BinaryDecoder, encBuffer,
+                workers[i] = new BinaryDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer,
                     i * offsets.Length / count, (i + 1) * offsets.Length / count, offsets);
             }
 
