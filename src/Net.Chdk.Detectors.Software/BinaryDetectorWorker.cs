@@ -1,8 +1,8 @@
 ﻿using Net.Chdk.Encoders.Binary;
 using Net.Chdk.Model.Software;
+using Net.Chdk.Providers.Boot;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -12,48 +12,41 @@ namespace Net.Chdk.Detectors.Software
     sealed class BinaryDetectorWorker : IDisposable
     {
         private const string EncodingName = "dancingbits";
-        private const int ChunkSize = 0x400;
 
         private IEnumerable<IProductBinarySoftwareDetector> Detectors { get; }
 
+        private readonly byte[] inBuffer;
         private readonly byte[] encBuffer;
         private readonly byte[] decBuffer;
-        private readonly byte[] tmpBuffer1;
-        private readonly byte[] tmpBuffer2;
-        private readonly MemoryStream encStream;
-        private readonly MemoryStream decStream;
-        private readonly Func<uint?, bool> decode;
+        private readonly Action<uint?> decode;
         private readonly uint?[] offsets;
 
-        public BinaryDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, int startIndex, int endIndex, uint?[] offsets)
+        public BinaryDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBootProvider bootProvider, IBinaryDecoder binaryDecoder, byte[] inBuffer, int startIndex, int endIndex, uint?[] offsets)
         {
             Detectors = detectors;
 
-            this.encBuffer = encBuffer;
-            this.decBuffer = new byte[encBuffer.Length];
-            this.tmpBuffer1 = new byte[ChunkSize];
-            this.tmpBuffer2 = new byte[ChunkSize];
-            this.encStream = new MemoryStream(this.encBuffer, false);
-            this.decStream = new MemoryStream(this.decBuffer);
-            this.decode = o => binaryDecoder.Decode(encStream, decStream, tmpBuffer1, tmpBuffer2, o);
-
+            this.inBuffer = inBuffer;
             if (offsets != null)
             {
+                var prefixLength = bootProvider.Prefix.Length;
+                this.encBuffer = new byte[inBuffer.Length - prefixLength];
+                Array.Copy(inBuffer, prefixLength, encBuffer, 0, encBuffer.Length);
+                this.decBuffer = new byte[encBuffer.Length];
+                this.decode = o => binaryDecoder.Decode(encBuffer, decBuffer, o.Value);
+
                 this.offsets = new uint?[endIndex - startIndex];
                 for (var i = 0; i < this.offsets.Length; i++)
                     this.offsets[i] = offsets[i + startIndex];
             }
         }
 
-        public BinaryDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] encBuffer, SoftwareEncodingInfo encoding)
-            : this(detectors, binaryDecoder, encBuffer, 0, 1, encoding != null ? new[] { encoding.Data } : null)
+        public BinaryDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBootProvider bootProvider, IBinaryDecoder binaryDecoder, byte[] inBuffer, SoftwareEncodingInfo encoding)
+            : this(detectors, bootProvider, binaryDecoder, inBuffer, 0, 1, encoding != null ? new[] { encoding.Data } : null)
         {
         }
 
         public void Dispose()
         {
-            encStream.Dispose();
-            decStream.Dispose();
         }
 
         public SoftwareInfo GetSoftware(ProgressState progress, CancellationToken token)
@@ -91,7 +84,7 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo PlainGetSoftware()
         {
-            var software = GetSoftware(encBuffer);
+            var software = GetSoftware(inBuffer);
             if (software != null)
                 software.Encoding = GetEncoding(null);
             return software;
@@ -142,12 +135,9 @@ namespace Net.Chdk.Detectors.Software
         private byte[] Decode(uint? offsets)
         {
             if (offsets == null)
-                return encBuffer;
-            encStream.Seek(0, SeekOrigin.Begin);
-            decStream.Seek(0, SeekOrigin.Begin);
-            if (decode(offsets))
-                return decBuffer;
-            return null;
+                return inBuffer;
+            decode(offsets.Value);
+            return decBuffer;
         }
 
         private static SoftwareEncodingInfo GetEncoding(uint? offsets)
