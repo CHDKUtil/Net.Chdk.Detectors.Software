@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
-    sealed class UnknownBinarySoftwareDetector : BinarySoftwareDetectorBase
+    sealed class UnknownBinarySoftwareDetector : PsBinarySoftwareDetector
     {
         public UnknownBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
             : base(softwareDetectors, binaryDecoder, bootProviderResolver, cameraProvider, hashProvider, loggerFactory.CreateLogger<UnknownBinarySoftwareDetector>())

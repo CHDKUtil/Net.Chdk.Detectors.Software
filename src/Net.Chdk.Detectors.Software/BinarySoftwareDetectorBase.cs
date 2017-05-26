@@ -14,8 +14,6 @@ namespace Net.Chdk.Detectors.Software
 {
     abstract class BinarySoftwareDetectorBase : IInnerBinarySoftwareDetector
     {
-        private const string CategoryName = "PS";
-
         private const string HashName = "sha256";
 
         protected ILogger Logger { get; }
@@ -194,5 +192,7 @@ namespace Net.Chdk.Detectors.Software
         }
 
         protected abstract uint?[] GetOffsets();
+
+        protected abstract string CategoryName { get; }
     }
 }
