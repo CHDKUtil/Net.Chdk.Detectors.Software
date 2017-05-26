@@ -70,6 +70,8 @@ namespace Net.Chdk.Detectors.Software
             {
                 if (software2.Product.Created != null)
                     software.Product.Created = software2.Product.Created;
+                if (software2.Build != null)
+                    software.Build = software2.Build;
                 if (software.Encoding == null)
                     software.Encoding = software2.Encoding;
                 return true;
