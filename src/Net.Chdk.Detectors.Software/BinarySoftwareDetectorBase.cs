@@ -99,7 +99,7 @@ namespace Net.Chdk.Detectors.Software
         {
             using (var worker = new BinaryDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, new SoftwareEncodingInfo()))
             {
-                return worker.GetSoftware(ProgressState.Empty, token);
+                return worker.GetSoftware(new ProgressState(), token);
             }
         }
 
@@ -107,7 +107,7 @@ namespace Net.Chdk.Detectors.Software
         {
             using (var worker = new BinaryDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, encoding))
             {
-                return worker.GetSoftware(ProgressState.Empty, token);
+                return worker.GetSoftware(new ProgressState(), token);
             }
         }
 
