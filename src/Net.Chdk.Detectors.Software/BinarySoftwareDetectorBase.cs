@@ -14,6 +14,8 @@ namespace Net.Chdk.Detectors.Software
 {
     abstract class BinarySoftwareDetectorBase : IInnerBinarySoftwareDetector
     {
+        private const string CategoryName = "PS";
+
         private const string HashName = "sha256";
 
         protected ILogger Logger { get; }
@@ -24,12 +26,12 @@ namespace Net.Chdk.Detectors.Software
         private ICameraProvider CameraProvider { get; }
         private ISoftwareHashProvider HashProvider { get; }
 
-        protected BinarySoftwareDetectorBase(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
+        protected BinarySoftwareDetectorBase(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
         {
             Logger = logger;
             SoftwareDetectors = softwareDetectors;
             BinaryDecoder = binaryDecoder;
-            BootProvider = bootProvider;
+            BootProvider = bootProviderResolver.GetBootProvider(CategoryName);
             CameraProvider = cameraProvider;
             HashProvider = hashProvider;
         }
