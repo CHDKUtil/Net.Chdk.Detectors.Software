@@ -28,7 +28,9 @@ namespace Net.Chdk.Detectors.Software
             this.inBuffer = inBuffer;
             if (offsets != null)
             {
-                var prefixLength = bootProvider.Prefix.Length;
+                var prefixLength = bootProvider.Prefix != null
+                    ? bootProvider.Prefix.Length
+                    : 0;
                 this.encBuffer = new byte[inBuffer.Length - prefixLength];
                 Array.Copy(inBuffer, prefixLength, encBuffer, 0, encBuffer.Length);
                 this.decBuffer = new byte[encBuffer.Length];
