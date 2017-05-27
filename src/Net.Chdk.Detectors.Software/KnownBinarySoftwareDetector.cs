@@ -15,8 +15,8 @@ namespace Net.Chdk.Detectors.Software
 
         protected override uint?[] GetOffsets()
         {
-            var offsets = new uint?[BinaryDecoder.MaxVersion + 1];
-            for (var v = 0; v < BinaryDecoder.MaxVersion; v++)
+            var offsets = new uint?[BootProvider.Offsets.Length + 1];
+            for (var v = 0; v < BootProvider.Offsets.Length; v++)
                 offsets[v + 1] = GetOffsets(v + 1);
             return offsets;
         }
