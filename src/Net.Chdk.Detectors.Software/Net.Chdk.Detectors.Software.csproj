@@ -79,10 +79,10 @@
     <Compile Include="BinaryDetectorWorker.cs" />
     <Compile Include="BinarySoftwareDetector.cs" />
     <Compile Include="EosBinarySoftwareDetector.cs" />
-    <Compile Include="KnownBinarySoftwareDetector.cs" />
+    <Compile Include="KnownPsBinarySoftwareDetector.cs" />
     <Compile Include="BinarySoftwareDetectorBase.cs" />
     <Compile Include="PsBinarySoftwareDetector.cs" />
-    <Compile Include="UnknownBinarySoftwareDetector.cs" />
+    <Compile Include="UnknownPsBinarySoftwareDetector.cs" />
     <Compile Include="FileSystemSoftwareDetector.cs" />
     <Compile Include="IInnerSoftwareDetector.cs" />
     <Compile Include="MetadataSoftwareDetector.cs" />

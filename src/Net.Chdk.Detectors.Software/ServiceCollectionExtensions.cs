@@ -29,16 +29,16 @@ namespace Net.Chdk.Detectors.Software
                 .AddSingleton<IInnerBinarySoftwareDetector, EosBinarySoftwareDetector>();
         }
 
-        public static IServiceCollection AddKnownBinarySoftwareDetector(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddKnownPsBinarySoftwareDetector(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddSingleton<IInnerBinarySoftwareDetector, KnownBinarySoftwareDetector>();
+                .AddSingleton<IInnerBinarySoftwareDetector, KnownPsBinarySoftwareDetector>();
         }
 
-        public static IServiceCollection AddUnkownBinarySoftwareDetector(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddUnkownPsBinarySoftwareDetector(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddSingleton<IInnerBinarySoftwareDetector, UnknownBinarySoftwareDetector>();
+                .AddSingleton<IInnerBinarySoftwareDetector, UnknownPsBinarySoftwareDetector>();
         }
 
         public static IServiceCollection AddFileSystemSoftwareDetector(this IServiceCollection serviceCollection)
