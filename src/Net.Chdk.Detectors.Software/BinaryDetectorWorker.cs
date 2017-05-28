@@ -95,7 +95,7 @@ namespace Net.Chdk.Detectors.Software
         private SoftwareInfo GetSoftware(byte[] buffer)
         {
             var tuples = Detectors
-                .SelectMany(GetBytes)
+                .Select(GetBytes)
                 .ToArray();
             return GetSoftware(buffer, tuples);
         }
@@ -120,9 +120,9 @@ namespace Net.Chdk.Detectors.Software
             return null;
         }
 
-        private static IEnumerable<Tuple<Func<byte[], int, SoftwareInfo>, byte[]>> GetBytes(IProductBinarySoftwareDetector d)
+        private static Tuple<Func<byte[], int, SoftwareInfo>, byte[]> GetBytes(IProductBinarySoftwareDetector d)
         {
-            return d.Bytes.Select(b => Tuple.Create<Func<byte[], int, SoftwareInfo>, byte[]>(d.GetSoftware, b));
+            return Tuple.Create<Func<byte[], int, SoftwareInfo>, byte[]>(d.GetSoftware, d.Bytes);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
