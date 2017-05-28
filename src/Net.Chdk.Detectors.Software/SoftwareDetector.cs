@@ -19,7 +19,7 @@ namespace Net.Chdk.Detectors.Software
             SoftwareDetectors = softwareDetectors;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
+        public IEnumerable<SoftwareInfo> GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
         {
             Logger.LogTrace("Detecting software from {0}", cardInfo.DriveLetter);
 

@@ -25,7 +25,7 @@ namespace Net.Chdk.Detectors.Software
             BootProviderResolver = bootProviderResolver;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
+        public IEnumerable<SoftwareInfo> GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
         {
             Logger.LogTrace("Detecting software from {0} file system", cardInfo.DriveLetter);
 
@@ -34,7 +34,7 @@ namespace Net.Chdk.Detectors.Software
             {
                 var software = GetSoftware(cardInfo, kvp.Key, kvp.Value);
                 if (software != null)
-                    return software;
+                    return new[] { software };
             }
             return null;
         }

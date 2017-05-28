@@ -16,17 +16,18 @@ namespace Net.Chdk.Detectors.Software
             SoftwareDetectors = softwareDetectors;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
+        public IEnumerable<SoftwareInfo> GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
         {
             var baseBath = cardInfo.GetRootPath();
             return GetSoftware(baseBath, progress, token);
         }
 
-        public SoftwareInfo GetSoftware(string basePath, IProgress<double> progress, CancellationToken token)
+        public IEnumerable<SoftwareInfo> GetSoftware(string basePath, IProgress<double> progress, CancellationToken token)
         {
             return SoftwareDetectors
                 .Select(d => d.GetSoftware(basePath, progress, token))
-                .FirstOrDefault(s => s != null);
+                .Where(s => s != null)
+                .ToArray();
         }
 
         public bool UpdateSoftware(SoftwareInfo software, byte[] buffer)

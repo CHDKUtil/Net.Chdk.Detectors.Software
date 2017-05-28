@@ -3,6 +3,7 @@ using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Validators;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
@@ -14,11 +15,15 @@ namespace Net.Chdk.Detectors.Software
         {
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
+        public IEnumerable<SoftwareInfo> GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
         {
             Logger.LogTrace("Detecting software from {0} metadata", cardInfo.DriveLetter);
 
-            return GetValue(cardInfo);
+            var software = GetValue(cardInfo);
+            if (software == null)
+                return null;
+
+            return new[] { software };
         }
 
         protected override string FileName => Files.Metadata.Software;
