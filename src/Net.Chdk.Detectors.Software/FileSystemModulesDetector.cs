@@ -45,6 +45,9 @@ namespace Net.Chdk.Detectors.Software
             var modulesProvider = ModulesProviderResolver.GetModulesProvider(productName);
             var modulesPath = modulesProvider.Path;
             var path = Path.Combine(basePath, modulesPath);
+            if (!Directory.Exists(path))
+                return null;
+
             var pattern = string.Format("*{0}", modulesProvider.Extension);
             var files = Directory.EnumerateFiles(path, pattern);
 
@@ -52,6 +55,7 @@ namespace Net.Chdk.Detectors.Software
             var modules = new Dictionary<string, ModuleInfo>();
             foreach (var file in files)
                 AddFile(software, modulesPath, modules, file, flatModules);
+
             return modules;
         }
 
