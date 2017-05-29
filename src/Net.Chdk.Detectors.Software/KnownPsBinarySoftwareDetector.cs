@@ -8,8 +8,8 @@ namespace Net.Chdk.Detectors.Software
 {
     sealed class KnownPsBinarySoftwareDetector : PsBinarySoftwareDetector
     {
-        public KnownPsBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
-            : base(softwareDetectors, binaryDecoder, bootProviderResolver, cameraProvider, hashProvider, loggerFactory.CreateLogger<KnownPsBinarySoftwareDetector>())
+        public KnownPsBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, IEncodingProvider encodingProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
+            : base(softwareDetectors, binaryDecoder, bootProviderResolver, encodingProvider, hashProvider, loggerFactory.CreateLogger<KnownPsBinarySoftwareDetector>())
         {
         }
 
