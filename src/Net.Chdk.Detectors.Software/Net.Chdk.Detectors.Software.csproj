@@ -79,8 +79,12 @@
     <Compile Include="BinaryDetectorWorker.cs" />
     <Compile Include="BinarySoftwareDetector.cs" />
     <Compile Include="EosBinarySoftwareDetector.cs" />
+    <Compile Include="FileSystemModulesDetector.cs" />
+    <Compile Include="IInnerModulesDetector.cs" />
     <Compile Include="KnownPsBinarySoftwareDetector.cs" />
     <Compile Include="BinarySoftwareDetectorBase.cs" />
+    <Compile Include="MetadataModulesDetector.cs" />
+    <Compile Include="ModulesDetector.cs" />
     <Compile Include="PsBinarySoftwareDetector.cs" />
     <Compile Include="UnknownPsBinarySoftwareDetector.cs" />
     <Compile Include="FileSystemSoftwareDetector.cs" />

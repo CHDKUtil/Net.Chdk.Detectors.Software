@@ -46,5 +46,23 @@ namespace Net.Chdk.Detectors.Software
             return serviceCollection
                 .AddSingleton<IInnerSoftwareDetector, FileSystemSoftwareDetector>();
         }
+
+        public static IServiceCollection AddModulesDetector(this IServiceCollection serviceCollection)
+        {
+            return serviceCollection
+                .AddSingleton<IModulesDetector, ModulesDetector>();
+        }
+
+        public static IServiceCollection AddMetadataModulesDetector(this IServiceCollection serviceCollection)
+        {
+            return serviceCollection
+                .AddSingleton<IInnerModulesDetector, MetadataModulesDetector>();
+        }
+
+        public static IServiceCollection AddFileSystemModulesDetector(this IServiceCollection serviceCollection)
+        {
+            return serviceCollection
+                .AddSingleton<IInnerModulesDetector, FileSystemModulesDetector>();
+        }
     }
 }
