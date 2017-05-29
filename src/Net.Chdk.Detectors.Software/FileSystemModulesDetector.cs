@@ -5,7 +5,6 @@ using Net.Chdk.Providers.Software;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -51,21 +50,21 @@ namespace Net.Chdk.Detectors.Software
             var pattern = string.Format("*{0}", modulesProvider.Extension);
             var files = Directory.EnumerateFiles(path, pattern);
 
-            var flatModules = Flatten(modulesProvider);
+            var moduleNames = GetModuleNames(modulesProvider);
             var modules = new Dictionary<string, ModuleInfo>();
             foreach (var file in files)
-                AddFile(software, modulesPath, modules, file, flatModules);
+                AddFile(software, modulesPath, modules, file, moduleNames);
 
             return modules;
         }
 
-        private void AddFile(SoftwareInfo software, string modulesPath, Dictionary<string, ModuleInfo> modules, string file, Dictionary<string, string[]> flatModules)
+        private void AddFile(SoftwareInfo software, string modulesPath, Dictionary<string, ModuleInfo> modules, string file, Dictionary<string, string> moduleNames)
         {
             var fileName = Path.GetFileName(file);
             var filePath = Path.Combine(modulesPath, fileName).ToLowerInvariant();
 
-            var moduleName = GetModuleName(flatModules, filePath);
-            if (moduleName == null)
+            string moduleName;
+            if (!moduleNames.TryGetValue(filePath, out moduleName))
             {
                 Logger.LogError("Missing module for {0}", filePath);
                 moduleName = fileName;
@@ -80,24 +79,14 @@ namespace Net.Chdk.Detectors.Software
             modules.Add(moduleName, moduleInfo);
         }
 
-        private string GetModuleName(Dictionary<string, string[]> flatModules, string filePath)
+        private static Dictionary<string, string> GetModuleNames(IModulesProvider modulesProvider)
         {
-            foreach (var kvp in flatModules)
-            {
-                if (kvp.Value.Contains(filePath, StringComparer.InvariantCultureIgnoreCase))
-                    return kvp.Key;
-            }
-            return null;
+            var moduleNames = new Dictionary<string, string>();
+            GetModuleNames(modulesProvider.Children, moduleNames);
+            return moduleNames;
         }
 
-        private static Dictionary<string, string[]> Flatten(IModulesProvider modulesProvider)
-        {
-            var flat = new Dictionary<string, string[]>();
-            Flatten(modulesProvider.Children, flat);
-            return flat;
-        }
-
-        private static void Flatten(IDictionary<string, ModuleData> modules, Dictionary<string, string[]> flat)
+        private static void GetModuleNames(IDictionary<string, ModuleData> modules, Dictionary<string, string> moduleNames)
         {
             if (modules != null)
             {
@@ -105,8 +94,13 @@ namespace Net.Chdk.Detectors.Software
                 {
                     var files = kvp.Value.Files;
                     if (files != null)
-                        flat.Add(kvp.Key, files);
-                    Flatten(kvp.Value.Children, flat);
+                    {
+                        foreach (var file in files)
+                        {
+                            moduleNames.Add(file.ToLowerInvariant(), kvp.Key);
+                        }
+                    }
+                    GetModuleNames(kvp.Value.Children, moduleNames);
                 }
             }
         }
