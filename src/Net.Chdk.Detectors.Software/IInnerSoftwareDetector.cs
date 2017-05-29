@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
-    public interface IInnerSoftwareDetector
+    interface IInnerSoftwareDetector
     {
         IEnumerable<SoftwareInfo> GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token);
     }

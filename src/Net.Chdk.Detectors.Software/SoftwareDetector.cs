@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
-    public sealed class SoftwareDetector : ISoftwareDetector
+    sealed class SoftwareDetector : ISoftwareDetector
     {
         private ILogger Logger { get; }
         private IEnumerable<IInnerSoftwareDetector> SoftwareDetectors { get; }
