@@ -49,22 +49,19 @@ namespace Net.Chdk.Detectors.Software
 
             var pattern = string.Format("*{0}", moduleProvider.Extension);
             var files = Directory.EnumerateFiles(path, pattern);
-
-            var moduleNames = GetModuleNames(moduleProvider);
             var modules = new Dictionary<string, ModuleInfo>();
             foreach (var file in files)
-                AddFile(software, modulesPath, modules, file, moduleNames);
-
+                AddFile(moduleProvider, software, modulesPath, file, modules);
             return modules;
         }
 
-        private void AddFile(SoftwareInfo software, string modulesPath, Dictionary<string, ModuleInfo> modules, string file, Dictionary<string, string> moduleNames)
+        private void AddFile(IModuleProvider moduleProvider, SoftwareInfo software, string modulesPath, string file, Dictionary<string, ModuleInfo> modules)
         {
             var fileName = Path.GetFileName(file);
             var filePath = Path.Combine(modulesPath, fileName).ToLowerInvariant();
 
-            string moduleName;
-            if (!moduleNames.TryGetValue(filePath, out moduleName))
+            var moduleName = moduleProvider.GetModuleName(filePath);
+            if (moduleName == null)
             {
                 Logger.LogError("Missing module for {0}", filePath);
                 moduleName = fileName;
@@ -77,32 +74,6 @@ namespace Net.Chdk.Detectors.Software
                 Hash = GetHash(file, filePath),
             };
             modules.Add(moduleName, moduleInfo);
-        }
-
-        private static Dictionary<string, string> GetModuleNames(IModuleProvider moduleProvider)
-        {
-            var moduleNames = new Dictionary<string, string>();
-            GetModuleNames(moduleProvider.Children, moduleNames);
-            return moduleNames;
-        }
-
-        private static void GetModuleNames(IDictionary<string, ModuleData> modules, Dictionary<string, string> moduleNames)
-        {
-            if (modules != null)
-            {
-                foreach (var kvp in modules)
-                {
-                    var files = kvp.Value.Files;
-                    if (files != null)
-                    {
-                        foreach (var file in files)
-                        {
-                            moduleNames.Add(file.ToLowerInvariant(), kvp.Key);
-                        }
-                    }
-                    GetModuleNames(kvp.Value.Children, moduleNames);
-                }
-            }
         }
 
         private SoftwareHashInfo GetHash(string file, string filePath)
