@@ -15,13 +15,13 @@ namespace Net.Chdk.Detectors.Software
         private static Version Version => new Version("1.0");
 
         private ILogger Logger { get; }
-        private IModulesProviderResolver ModulesProviderResolver { get; }
+        private IModuleProviderResolver ModuleProviderResolver { get; }
         private ISoftwareHashProvider HashProvider { get; }
 
-        public FileSystemModulesDetector(IModulesProviderResolver modulesProviderResolver, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
+        public FileSystemModulesDetector(IModuleProviderResolver moduleProviderResolver, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
         {
             Logger = loggerFactory.CreateLogger<FileSystemModulesDetector>();
-            ModulesProviderResolver = modulesProviderResolver;
+            ModuleProviderResolver = moduleProviderResolver;
             HashProvider = hashProvider;
         }
 
@@ -41,16 +41,16 @@ namespace Net.Chdk.Detectors.Software
         private Dictionary<string, ModuleInfo> GetModules(SoftwareInfo software, string basePath)
         {
             var productName = software.Product.Name;
-            var modulesProvider = ModulesProviderResolver.GetModulesProvider(productName);
-            var modulesPath = modulesProvider.Path;
+            var moduleProvider = ModuleProviderResolver.GetModuleProvider(productName);
+            var modulesPath = moduleProvider.Path;
             var path = Path.Combine(basePath, modulesPath);
             if (!Directory.Exists(path))
                 return null;
 
-            var pattern = string.Format("*{0}", modulesProvider.Extension);
+            var pattern = string.Format("*{0}", moduleProvider.Extension);
             var files = Directory.EnumerateFiles(path, pattern);
 
-            var moduleNames = GetModuleNames(modulesProvider);
+            var moduleNames = GetModuleNames(moduleProvider);
             var modules = new Dictionary<string, ModuleInfo>();
             foreach (var file in files)
                 AddFile(software, modulesPath, modules, file, moduleNames);
@@ -79,10 +79,10 @@ namespace Net.Chdk.Detectors.Software
             modules.Add(moduleName, moduleInfo);
         }
 
-        private static Dictionary<string, string> GetModuleNames(IModulesProvider modulesProvider)
+        private static Dictionary<string, string> GetModuleNames(IModuleProvider moduleProvider)
         {
             var moduleNames = new Dictionary<string, string>();
-            GetModuleNames(modulesProvider.Children, moduleNames);
+            GetModuleNames(moduleProvider.Children, moduleNames);
             return moduleNames;
         }
 
