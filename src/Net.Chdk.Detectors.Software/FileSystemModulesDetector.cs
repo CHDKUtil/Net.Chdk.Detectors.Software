@@ -5,6 +5,7 @@ using Net.Chdk.Providers.Software;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -25,7 +26,7 @@ namespace Net.Chdk.Detectors.Software
             HashProvider = hashProvider;
         }
 
-        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software)
+        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress)
         {
             Logger.LogTrace("Detecting modules from {0} file system", card.DriveLetter);
 
@@ -34,11 +35,11 @@ namespace Net.Chdk.Detectors.Software
             {
                 Version = new Version("1.0"),
                 ProductName = software.Product.Name,
-                Modules = GetModules(software, rootPath)
+                Modules = GetModules(software, rootPath, progress)
             };
         }
 
-        private Dictionary<string, ModuleInfo> GetModules(SoftwareInfo software, string basePath)
+        private Dictionary<string, ModuleInfo> GetModules(SoftwareInfo software, string basePath, IProgress<double> progress)
         {
             var productName = software.Product.Name;
             var moduleProvider = ModuleProviderResolver.GetModuleProvider(productName);
@@ -49,9 +50,17 @@ namespace Net.Chdk.Detectors.Software
 
             var pattern = string.Format("*{0}", moduleProvider.Extension);
             var files = Directory.EnumerateFiles(path, pattern);
+            var count = progress != null
+                ? files.Count()
+                : 0;
+            var index = 0;
             var modules = new Dictionary<string, ModuleInfo>();
             foreach (var file in files)
+            {
                 AddFile(moduleProvider, software, modulesPath, file, modules);
+                if (progress != null)
+                    progress.Report((double)(++index) / count);
+            }
             return modules;
         }
 

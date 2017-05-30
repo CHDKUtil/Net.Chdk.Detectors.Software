@@ -19,7 +19,7 @@ namespace Net.Chdk.Detectors.Software
         {
             Logger.LogTrace("Detecting software from {0} metadata", cardInfo.DriveLetter);
 
-            var software = GetValue(cardInfo);
+            var software = GetValue(cardInfo, progress);
             if (software == null)
                 return null;
 

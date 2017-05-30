@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,12 +18,12 @@ namespace Net.Chdk.Detectors.Software
             ModulesDetectors = modulesDetectors;
         }
 
-        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software)
+        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress)
         {
             Logger.LogTrace("Detecting modules from {0}", card.DriveLetter);
 
             return ModulesDetectors
-                .Select(d => d.GetModules(card, software))
+                .Select(d => d.GetModules(card, software, progress))
                 .FirstOrDefault(m => m != null);
         }
     }
