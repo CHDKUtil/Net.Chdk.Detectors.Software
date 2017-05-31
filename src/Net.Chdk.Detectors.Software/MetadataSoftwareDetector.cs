@@ -16,7 +16,7 @@ namespace Net.Chdk.Detectors.Software
 
         public SoftwareInfo GetSoftware(CardInfo cardInfo, string categoryName, IProgress<double> progress, CancellationToken token)
         {
-            Logger.LogTrace("Detecting software from {0} metadata", cardInfo.DriveLetter);
+            Logger.LogTrace("Detecting {0} software from {1} metadata", categoryName, cardInfo.DriveLetter);
 
             return GetValue(cardInfo, categoryName, progress);
         }

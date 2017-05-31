@@ -34,6 +34,8 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress, string categoryName, CancellationToken token)
         {
+            Logger.LogTrace("Detecting {0} software from {1}", categoryName, cardInfo.DriveLetter);
+
             return SoftwareDetectors
                 .Select(d => d.GetSoftware(cardInfo, categoryName, progress, token))
                 .FirstOrDefault(s => s != null);

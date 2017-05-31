@@ -20,7 +20,8 @@ namespace Net.Chdk.Detectors.Software
 
         public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress)
         {
-            Logger.LogTrace("Detecting modules from {0}", card.DriveLetter);
+            var productName = software.Product.Name;
+            Logger.LogTrace("Detecting {0} modules from {1}", productName, card.DriveLetter);
 
             return ModulesDetectors
                 .Select(d => d.GetModules(card, software, progress))

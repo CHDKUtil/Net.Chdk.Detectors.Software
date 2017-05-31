@@ -15,10 +15,11 @@ namespace Net.Chdk.Detectors.Software
 
         public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress)
         {
-            Logger.LogTrace("Detecting modules from {0} metadata", card.DriveLetter);
+            var productName = software.Product.Name;
+            Logger.LogTrace("Detecting {0} modules from {1} metadata", productName, card.DriveLetter);
 
             var modules = GetValue(card, software.Product.Category, progress);
-            if (!software.Product.Name.Equals(modules?.ProductName, StringComparison.InvariantCulture))
+            if (!productName.Equals(modules?.ProductName, StringComparison.InvariantCulture))
                 return null;
             return modules;
         }

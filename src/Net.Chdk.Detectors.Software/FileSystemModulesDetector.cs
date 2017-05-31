@@ -29,13 +29,14 @@ namespace Net.Chdk.Detectors.Software
 
         public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress)
         {
-            Logger.LogTrace("Detecting modules from {0} file system", card.DriveLetter);
+            var productName = software.Product.Name;
+            Logger.LogTrace("Detecting {0} modules from {1} file system", productName, card.DriveLetter);
 
             var rootPath = card.GetRootPath();
             return new ModulesInfo
             {
                 Version = new Version("1.0"),
-                ProductName = software.Product.Name,
+                ProductName = productName,
                 Modules = GetModules(software, rootPath, progress)
             };
         }
