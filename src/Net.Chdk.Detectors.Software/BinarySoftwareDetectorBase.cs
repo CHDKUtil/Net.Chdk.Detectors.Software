@@ -63,6 +63,9 @@ namespace Net.Chdk.Detectors.Software
 
         public bool UpdateSoftware(SoftwareInfo software, byte[] inBuffer)
         {
+            if (!CategoryName.Equals(software.Product.Category, StringComparison.InvariantCulture))
+                return false;
+
             var detectors = GetDetectors(software.Product);
             var encoding = GetEncoding(software.Product, software.Camera, software.Encoding);
 
