@@ -51,7 +51,8 @@ namespace Net.Chdk.Detectors.Software
             }
 
             var inBuffer = File.ReadAllBytes(diskbootPath);
-            var software = GetSoftware(SoftwareDetectors, inBuffer, progress, token);
+            var detectors = GetDetectors();
+            var software = GetSoftware(detectors, inBuffer, progress, token);
             if (software != null)
             {
                 if (software.Product.Created == null)
@@ -190,11 +191,19 @@ namespace Net.Chdk.Detectors.Software
                 ?? EncodingProvider.GetEncoding(product, camera);
         }
 
+        private IEnumerable<IProductBinarySoftwareDetector> GetDetectors()
+        {
+            return SoftwareDetectors
+                .Where(d => d.CategoryName.Equals(CategoryName, StringComparison.InvariantCulture));
+        }
+
         private IEnumerable<IProductBinarySoftwareDetector> GetDetectors(SoftwareProductInfo product)
         {
-            return product?.Name == null
-                ? SoftwareDetectors
-                : SoftwareDetectors.Where(d => d.ProductName.Equals(product.Name, StringComparison.InvariantCulture));
+            var productName = product?.Name;
+            return productName == null
+                ? GetDetectors()
+                : SoftwareDetectors
+                    .Where(d => d.ProductName.Equals(productName, StringComparison.InvariantCulture));
         }
 
         protected abstract uint?[] GetOffsets();
