@@ -129,6 +129,10 @@
       <Project>{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}</Project>
       <Name>Net.Chdk.Providers.Boot.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Net.Chdk.Providers.Category.Core\src\Net.Chdk.Providers.Category.Core\Net.Chdk.Providers.Category.Core.csproj">
+      <Project>{05B4FC36-AB60-48A6-A12C-0D8BB73843DD}</Project>
+      <Name>Net.Chdk.Providers.Category.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Net.Chdk.Providers.Crypto.Core\src\Net.Chdk.Providers.Crypto.Core\Net.Chdk.Providers.Crypto.Core.csproj">
       <Project>{5A6B4079-63EF-42BC-BAF8-F6C3480A4EC6}</Project>
       <Name>Net.Chdk.Providers.Crypto.Core</Name>

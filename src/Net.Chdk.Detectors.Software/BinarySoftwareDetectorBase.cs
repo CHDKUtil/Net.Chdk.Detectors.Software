@@ -34,8 +34,11 @@ namespace Net.Chdk.Detectors.Software
             HashProvider = hashProvider;
         }
 
-        public SoftwareInfo GetSoftware(string basePath, IProgress<double> progress, CancellationToken token)
+        public SoftwareInfo GetSoftware(string basePath, string categoryName, IProgress<double> progress, CancellationToken token)
         {
+            if (!CategoryName.Equals(categoryName, StringComparison.InvariantCulture))
+                return null;
+
             var fileName = BootProvider.FileName;
             var diskbootPath = Path.Combine(basePath, fileName);
 

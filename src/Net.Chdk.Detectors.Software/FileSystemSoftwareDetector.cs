@@ -25,22 +25,11 @@ namespace Net.Chdk.Detectors.Software
             BootProviderResolver = bootProviderResolver;
         }
 
-        public IEnumerable<SoftwareInfo> GetSoftware(CardInfo cardInfo, IProgress<double> progress, CancellationToken token)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, string categoryName, IProgress<double> progress, CancellationToken token)
         {
             Logger.LogTrace("Detecting software from {0} file system", cardInfo.DriveLetter);
 
-            var providers = BootProviderResolver.GetBootProviders();
-            foreach (var kvp in providers)
-            {
-                var software = GetSoftware(cardInfo, kvp.Key, kvp.Value);
-                if (software != null)
-                    return new[] { software };
-            }
-            return null;
-        }
-
-        private SoftwareInfo GetSoftware(CardInfo cardInfo, string categoryName, IBootProvider bootProvider)
-        {
+            var bootProvider = BootProviderResolver.GetBootProvider(categoryName);
             var rootPath = cardInfo.GetRootPath();
             var filePath = Path.Combine(rootPath, bootProvider.FileName);
             if (!File.Exists(filePath))

@@ -17,7 +17,7 @@ namespace Net.Chdk.Detectors.Software
         {
             Logger.LogTrace("Detecting modules from {0} metadata", card.DriveLetter);
 
-            var modules = GetValue(card, progress);
+            var modules = GetValue(card, software.Product.Category, progress);
             if (!software.Product.Name.Equals(modules?.ProductName, StringComparison.InvariantCulture))
                 return null;
             return modules;
