@@ -1,4 +1,5 @@
-﻿using Net.Chdk.Model.Card;
+﻿using Microsoft.Extensions.Logging;
+using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 using System;
 using System.Collections.Generic;
@@ -9,10 +10,13 @@ namespace Net.Chdk.Detectors.Software
 {
     sealed class BinarySoftwareDetector : IInnerSoftwareDetector, IBinarySoftwareDetector
     {
+        private ILogger Logger { get; }
+
         private IEnumerable<IInnerBinarySoftwareDetector> SoftwareDetectors { get; }
 
-        public BinarySoftwareDetector(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors)
+        public BinarySoftwareDetector(IEnumerable<IInnerBinarySoftwareDetector> softwareDetectors, ILoggerFactory loggerFactory)
         {
+            Logger = loggerFactory.CreateLogger<BinarySoftwareDetector>();
             SoftwareDetectors = softwareDetectors;
         }
 
@@ -24,6 +28,8 @@ namespace Net.Chdk.Detectors.Software
 
         public SoftwareInfo GetSoftware(string basePath, string categoryName, IProgress<double> progress, CancellationToken token)
         {
+            Logger.LogTrace("Detecting {0} software from {1} binaries", categoryName, basePath);
+
             return SoftwareDetectors
                 .Select(d => d.GetSoftware(basePath, categoryName, progress, token))
                 .FirstOrDefault(s => s != null);
@@ -31,6 +37,9 @@ namespace Net.Chdk.Detectors.Software
 
         public bool UpdateSoftware(SoftwareInfo software, byte[] buffer)
         {
+            var productName = software.Product.Name;
+            Logger.LogTrace("Updating {0}", productName);
+
             return SoftwareDetectors
                 .Any(d => d.UpdateSoftware(software, buffer));
         }
