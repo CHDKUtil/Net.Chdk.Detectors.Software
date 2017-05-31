@@ -18,7 +18,7 @@ namespace Net.Chdk.Detectors.Software
         {
             Logger.LogTrace("Detecting {0} software from {1} metadata", categoryName, cardInfo.DriveLetter);
 
-            return GetValue(cardInfo, categoryName, progress);
+            return GetValue(cardInfo, categoryName, progress, token);
         }
 
         protected override string FileName => Files.Metadata.Software;

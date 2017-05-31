@@ -3,6 +3,7 @@ using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Validators;
 using System;
+using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -13,12 +14,12 @@ namespace Net.Chdk.Detectors.Software
         {
         }
 
-        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress)
+        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
         {
             var productName = software.Product.Name;
             Logger.LogTrace("Detecting {0} modules from {1} metadata", productName, card.DriveLetter);
 
-            var modules = GetValue(card, software.Product.Category, progress);
+            var modules = GetValue(card, software.Product.Category, progress, token);
             if (!productName.Equals(modules?.ProductName, StringComparison.InvariantCulture))
                 return null;
             return modules;

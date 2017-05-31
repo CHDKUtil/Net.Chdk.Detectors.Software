@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -27,7 +28,7 @@ namespace Net.Chdk.Detectors.Software
             HashProvider = hashProvider;
         }
 
-        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress)
+        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
         {
             var productName = software.Product.Name;
             Logger.LogTrace("Detecting {0} modules from {1} file system", productName, card.DriveLetter);
@@ -37,11 +38,11 @@ namespace Net.Chdk.Detectors.Software
             {
                 Version = new Version("1.0"),
                 ProductName = productName,
-                Modules = GetModules(software, rootPath, progress)
+                Modules = GetModules(software, rootPath, progress, token)
             };
         }
 
-        private Dictionary<string, ModuleInfo> GetModules(SoftwareInfo software, string basePath, IProgress<double> progress)
+        private Dictionary<string, ModuleInfo> GetModules(SoftwareInfo software, string basePath, IProgress<double> progress, CancellationToken token)
         {
             var productName = software.Product.Name;
             var moduleProvider = ModuleProviderResolver.GetModuleProvider(productName);
@@ -53,6 +54,8 @@ namespace Net.Chdk.Detectors.Software
             if (!Directory.Exists(path))
                 return null;
 
+            token.ThrowIfCancellationRequested();
+
             var pattern = string.Format("*{0}", moduleProvider.Extension);
             var files = Directory.EnumerateFiles(path, pattern);
             var count = progress != null
@@ -62,6 +65,8 @@ namespace Net.Chdk.Detectors.Software
             var modules = new Dictionary<string, ModuleInfo>();
             foreach (var file in files)
             {
+                token.ThrowIfCancellationRequested();
+
                 AddFile(moduleProvider, software, modulesPath, file, modules);
                 if (progress != null)
                     progress.Report((double)(++index) / count);

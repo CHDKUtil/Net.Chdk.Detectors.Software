@@ -4,6 +4,7 @@ using Net.Chdk.Model.Software;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
@@ -18,13 +19,13 @@ namespace Net.Chdk.Detectors.Software
             ModulesDetectors = modulesDetectors;
         }
 
-        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress)
+        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
         {
             var productName = software.Product.Name;
             Logger.LogTrace("Detecting {0} modules from {1}", productName, card.DriveLetter);
 
             return ModulesDetectors
-                .Select(d => d.GetModules(card, software, progress))
+                .Select(d => d.GetModules(card, software, progress, token))
                 .FirstOrDefault(m => m != null);
         }
     }
