@@ -21,7 +21,10 @@ namespace Net.Chdk.Detectors.Software
 
         public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
         {
-            var productName = software.Product.Name;
+            var productName = software.Product?.Name;
+            if (productName == null)
+                return null;
+
             Logger.LogTrace("Detecting {0} modules from {1}", productName, card.DriveLetter);
 
             return ModulesDetectors
