@@ -46,7 +46,7 @@ namespace Net.Chdk.Detectors.Software
         {
             var productName = software.Product.Name;
             var moduleProvider = ModuleProviderResolver.GetModuleProvider(productName);
-            var modulesPath = moduleProvider.Path;
+            var modulesPath = moduleProvider?.Path;
             if (modulesPath == null)
                 return null;
 
