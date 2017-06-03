@@ -37,7 +37,16 @@ namespace Net.Chdk.Detectors.Software
             return new SoftwareInfo
             {
                 Version = Version,
+                Category = GetCategory(categoryName),
                 Product = GetProduct(cardInfo, categoryName),
+            };
+        }
+
+        private static SoftwareCategoryInfo GetCategory(string categoryName)
+        {
+            return new SoftwareCategoryInfo
+            {
+                Name = categoryName,
             };
         }
 
