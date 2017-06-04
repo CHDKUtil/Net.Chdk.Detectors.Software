@@ -20,10 +20,10 @@ namespace Net.Chdk.Detectors.Software
             SoftwareDetectors = softwareDetectors;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, string categoryName, IProgress<double> progress, CancellationToken token)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, SoftwareCategoryInfo category, IProgress<double> progress, CancellationToken token)
         {
             var baseBath = cardInfo.GetRootPath();
-            return GetSoftware(baseBath, categoryName, progress, token);
+            return GetSoftware(baseBath, category.Name, progress, token);
         }
 
         public SoftwareInfo GetSoftware(string basePath, string categoryName, IProgress<double> progress, CancellationToken token)

@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
-    sealed class MetadataModulesDetector : MetadataDetector<MetadataModulesDetector, ModulesInfo>, IInnerModulesDetector
+    sealed class MetadataModulesDetector : MetadataDetector<MetadataModulesDetector, ModulesInfo>, IInnerModulesDetector, IMetadataModulesDetector
     {
         public MetadataModulesDetector(IValidator<ModulesInfo> validator, ILoggerFactory loggerFactory)
             : base(validator, loggerFactory)
@@ -16,10 +16,16 @@ namespace Net.Chdk.Detectors.Software
 
         public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
         {
-            var productName = software.Product.Name;
-            Logger.LogTrace("Detecting {0} modules from {1} metadata", productName, card.DriveLetter);
+            var basePath = card.GetRootPath();
+            return GetModules(basePath, software, progress, token);
+        }
 
-            var modules = GetValue(card, software.Category.Name, progress, token);
+        public ModulesInfo GetModules(string basePath, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
+        {
+            var productName = software.Product.Name;
+            Logger.LogTrace("Detecting {0} modules from {1} metadata", productName, basePath);
+
+            var modules = GetValue(basePath, software.Category, progress, token);
             if (!productName.Equals(modules?.ProductName, StringComparison.InvariantCulture))
                 return null;
             return modules;

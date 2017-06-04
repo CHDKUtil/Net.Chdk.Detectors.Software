@@ -26,19 +26,33 @@ namespace Net.Chdk.Detectors.Software
         {
             Logger.LogTrace("Detecting software from {0}", cardInfo.DriveLetter);
 
-            return CategoryProvider.GetCategories()
-                .Select(c => GetSoftware(cardInfo, progress, c, token))
+            return GetCategories()
+                .Select(c => GetSoftware(cardInfo, c, progress, token))
                 .Where(s => s != null)
                 .ToArray();
         }
 
-        private SoftwareInfo GetSoftware(CardInfo cardInfo, IProgress<double> progress, string categoryName, CancellationToken token)
+        private SoftwareInfo GetSoftware(CardInfo cardInfo, SoftwareCategoryInfo category, IProgress<double> progress, CancellationToken token)
         {
-            Logger.LogTrace("Detecting {0} software from {1}", categoryName, cardInfo.DriveLetter);
+            Logger.LogTrace("Detecting {0} software from {1}", category.Name, cardInfo.DriveLetter);
 
             return SoftwareDetectors
-                .Select(d => d.GetSoftware(cardInfo, categoryName, progress, token))
+                .Select(d => d.GetSoftware(cardInfo, category, progress, token))
                 .FirstOrDefault(s => s != null);
+        }
+
+        private IEnumerable<SoftwareCategoryInfo> GetCategories()
+        {
+            return CategoryProvider.GetCategories()
+                .Select(GetCategory);
+        }
+
+        private static SoftwareCategoryInfo GetCategory(string categoryName)
+        {
+            return new SoftwareCategoryInfo
+            {
+                Name = categoryName,
+            };
         }
     }
 }

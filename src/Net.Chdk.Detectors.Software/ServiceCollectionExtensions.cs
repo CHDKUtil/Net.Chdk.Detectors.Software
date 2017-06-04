@@ -13,7 +13,8 @@ namespace Net.Chdk.Detectors.Software
         public static IServiceCollection AddMetadataSoftwareDetector(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddSingleton<IInnerSoftwareDetector, MetadataSoftwareDetector>();
+                .AddSingleton<IInnerSoftwareDetector, MetadataSoftwareDetector>()
+                .AddSingleton<IMetadataSoftwareDetector, MetadataSoftwareDetector>();
         }
 
         public static IServiceCollection AddBinarySoftwareDetector(this IServiceCollection serviceCollection)
@@ -56,7 +57,8 @@ namespace Net.Chdk.Detectors.Software
         public static IServiceCollection AddMetadataModulesDetector(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddSingleton<IInnerModulesDetector, MetadataModulesDetector>();
+                .AddSingleton<IInnerModulesDetector, MetadataModulesDetector>()
+                .AddSingleton<IMetadataModulesDetector, MetadataModulesDetector>();
         }
 
         public static IServiceCollection AddFileSystemModulesDetector(this IServiceCollection serviceCollection)

@@ -25,11 +25,11 @@ namespace Net.Chdk.Detectors.Software
             BootProviderResolver = bootProviderResolver;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, string categoryName, IProgress<double> progress, CancellationToken token)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, SoftwareCategoryInfo category, IProgress<double> progress, CancellationToken token)
         {
-            Logger.LogTrace("Detecting {0} software from {1} file system", categoryName, cardInfo.DriveLetter);
+            Logger.LogTrace("Detecting {0} software from {1} file system", category.Name, cardInfo.DriveLetter);
 
-            var bootProvider = BootProviderResolver.GetBootProvider(categoryName);
+            var bootProvider = BootProviderResolver.GetBootProvider(category.Name);
             var rootPath = cardInfo.GetRootPath();
             var filePath = Path.Combine(rootPath, bootProvider.FileName);
             if (!File.Exists(filePath))
@@ -37,16 +37,8 @@ namespace Net.Chdk.Detectors.Software
             return new SoftwareInfo
             {
                 Version = Version,
-                Category = GetCategory(categoryName),
-                Product = GetProduct(cardInfo, categoryName),
-            };
-        }
-
-        private static SoftwareCategoryInfo GetCategory(string categoryName)
-        {
-            return new SoftwareCategoryInfo
-            {
-                Name = categoryName,
+                Category = category,
+                Product = GetProduct(cardInfo, category.Name),
             };
         }
 

@@ -38,7 +38,7 @@ namespace Net.Chdk.Detectors.Software
         public ModulesInfo GetModules(SoftwareInfo software, string basePath, IProgress<double> progress, CancellationToken token)
         {
             var productName = software.Product.Name;
-            Logger.LogTrace("Detecting {0} modules from {1}", productName, basePath);
+            Logger.LogTrace("Detecting {0} modules from {1} file system", productName, basePath);
 
             return new ModulesInfo
             {
