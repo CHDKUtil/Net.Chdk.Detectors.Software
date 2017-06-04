@@ -76,9 +76,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryDetectorWorker.cs" />
+    <Compile Include="BinaryModuleDetectorWorker.cs" />
+    <Compile Include="BinarySoftwareDetectorWorker.cs" />
+    <Compile Include="BinaryModuleDetector.cs" />
     <Compile Include="BinarySoftwareDetector.cs" />
+    <Compile Include="DerivedModuleDetector.cs" />
     <Compile Include="EosBinarySoftwareDetector.cs" />
     <Compile Include="FileSystemModulesDetector.cs" />
+    <Compile Include="IInnerModuleDetector.cs" />
     <Compile Include="IInnerModulesDetector.cs" />
     <Compile Include="KnownPsBinarySoftwareDetector.cs" />
     <Compile Include="BinarySoftwareDetectorBase.cs" />

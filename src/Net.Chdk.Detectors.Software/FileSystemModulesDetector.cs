@@ -19,12 +19,14 @@ namespace Net.Chdk.Detectors.Software
 
         private ILogger Logger { get; }
         private IModuleProviderResolver ModuleProviderResolver { get; }
+        private IEnumerable<IInnerModuleDetector> ModuleDetectors { get; }
         private IHashProvider HashProvider { get; }
 
-        public FileSystemModulesDetector(IModuleProviderResolver moduleProviderResolver, IHashProvider hashProvider, ILoggerFactory loggerFactory)
+        public FileSystemModulesDetector(IModuleProviderResolver moduleProviderResolver, IEnumerable<IInnerModuleDetector> moduleDetectors, IHashProvider hashProvider, ILoggerFactory loggerFactory)
         {
             Logger = loggerFactory.CreateLogger<FileSystemModulesDetector>();
             ModuleProviderResolver = moduleProviderResolver;
+            ModuleDetectors = moduleDetectors;
             HashProvider = hashProvider;
         }
 
@@ -86,43 +88,25 @@ namespace Net.Chdk.Detectors.Software
                 moduleName = fileName;
             }
 
+            var buffer = File.ReadAllBytes(file);
+
             ModuleInfo moduleInfo;
             if (!modules.TryGetValue(moduleName, out moduleInfo))
             {
-                moduleInfo = CreateModule(software);
+                moduleInfo = GetModule(software, buffer);
                 modules.Add(moduleName, moduleInfo);
             }
 
-            var hashString = GetHashString(file);
+            var hashString = HashProvider.GetHashString(buffer, HashName);
             moduleInfo.Hash.Values.Add(filePath, hashString);
 
         }
 
-        private static ModuleInfo CreateModule(SoftwareInfo software)
+        private ModuleInfo GetModule(SoftwareInfo software, byte[] buffer)
         {
-            return new ModuleInfo
-            {
-                Created = software.Product.Created,
-                Changeset = software.Build.Changeset,
-                Hash = CreateHash(),
-            };
-        }
-
-        private static SoftwareHashInfo CreateHash()
-        {
-            return new SoftwareHashInfo
-            {
-                Name = HashName,
-                Values = new Dictionary<string, string>(),
-            };
-        }
-
-        private string GetHashString(string file)
-        {
-            using (var stream = File.OpenRead(file))
-            {
-                return HashProvider.GetHashString(stream, HashName);
-            }
+            return ModuleDetectors
+                .Select(d => d.GetModule(software, buffer, HashName))
+                .FirstOrDefault(m => m != null);
         }
     }
 }

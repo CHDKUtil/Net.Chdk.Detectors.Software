@@ -106,7 +106,7 @@ namespace Net.Chdk.Detectors.Software
 
         protected SoftwareInfo PlainGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, CancellationToken token)
         {
-            using (var worker = new BinaryDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, new SoftwareEncodingInfo()))
+            using (var worker = new BinarySoftwareDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, new SoftwareEncodingInfo()))
             {
                 return worker.GetSoftware(new ProgressState(), token);
             }
@@ -114,7 +114,7 @@ namespace Net.Chdk.Detectors.Software
 
         private SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
         {
-            using (var worker = new BinaryDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, encoding))
+            using (var worker = new BinarySoftwareDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, encoding))
             {
                 return worker.GetSoftware(new ProgressState(), token);
             }
@@ -133,10 +133,10 @@ namespace Net.Chdk.Detectors.Software
             var watch = new Stopwatch();
             watch.Start();
 
-            var workers = new BinaryDetectorWorker[count];
+            var workers = new BinarySoftwareDetectorWorker[count];
             for (var i = 0; i < count; i++)
             {
-                workers[i] = new BinaryDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer,
+                workers[i] = new BinarySoftwareDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer,
                     i * offsets.Length / count, (i + 1) * offsets.Length / count, offsets);
             }
 
@@ -156,7 +156,7 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        private SoftwareInfo GetSoftware(BinaryDetectorWorker[] workers, int offsetCount, ProgressState progress, CancellationToken token)
+        private SoftwareInfo GetSoftware(BinarySoftwareDetectorWorker[] workers, int offsetCount, ProgressState progress, CancellationToken token)
         {
             var workerCount = workers.Length;
             if (workerCount == 1)
