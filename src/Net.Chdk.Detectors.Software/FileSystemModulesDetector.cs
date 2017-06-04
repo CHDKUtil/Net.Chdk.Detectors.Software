@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace Net.Chdk.Detectors.Software
 {
-    sealed class FileSystemModulesDetector : IInnerModulesDetector
+    sealed class FileSystemModulesDetector : IInnerModulesDetector, IFileSystemModulesDetector
     {
         private const string HashName = "sha256";
 
@@ -32,19 +32,23 @@ namespace Net.Chdk.Detectors.Software
 
         public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
         {
-            var productName = software.Product.Name;
-            Logger.LogTrace("Detecting {0} modules from {1} file system", productName, card.DriveLetter);
+            return GetModules(software, card.GetRootPath(), progress, token);
+        }
 
-            var rootPath = card.GetRootPath();
+        public ModulesInfo GetModules(SoftwareInfo software, string basePath, IProgress<double> progress, CancellationToken token)
+        {
+            var productName = software.Product.Name;
+            Logger.LogTrace("Detecting {0} modules from {1}", productName, basePath);
+
             return new ModulesInfo
             {
                 Version = new Version("1.0"),
                 ProductName = productName,
-                Modules = GetModules(software, rootPath, progress, token)
+                Modules = DoGetModules(software, basePath, progress, token)
             };
         }
 
-        private Dictionary<string, ModuleInfo> GetModules(SoftwareInfo software, string basePath, IProgress<double> progress, CancellationToken token)
+        private Dictionary<string, ModuleInfo> DoGetModules(SoftwareInfo software, string basePath, IProgress<double> progress, CancellationToken token)
         {
             var productName = software.Product.Name;
             var moduleProvider = ModuleProviderResolver.GetModuleProvider(productName);
@@ -99,7 +103,6 @@ namespace Net.Chdk.Detectors.Software
 
             var hashString = HashProvider.GetHashString(buffer, HashName);
             moduleInfo.Hash.Values.Add(filePath, hashString);
-
         }
 
         private ModuleInfo GetModule(SoftwareInfo software, byte[] buffer)
