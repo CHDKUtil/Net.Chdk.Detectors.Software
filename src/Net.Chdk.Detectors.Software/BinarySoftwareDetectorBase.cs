@@ -106,18 +106,14 @@ namespace Net.Chdk.Detectors.Software
 
         protected SoftwareInfo PlainGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, CancellationToken token)
         {
-            using (var worker = new BinarySoftwareDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, new SoftwareEncodingInfo()))
-            {
-                return worker.GetSoftware(new ProgressState(), token);
-            }
+            var worker = new BinarySoftwareDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, new SoftwareEncodingInfo());
+            return worker.GetSoftware(new ProgressState(), token);
         }
 
         private SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
         {
-            using (var worker = new BinarySoftwareDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, encoding))
-            {
-                return worker.GetSoftware(new ProgressState(), token);
-            }
+            var worker = new BinarySoftwareDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, encoding);
+            return worker.GetSoftware(new ProgressState(), token);
         }
 
         protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, IProgress<double> progress, CancellationToken token)
@@ -142,11 +138,6 @@ namespace Net.Chdk.Detectors.Software
 
             var progressState = new ProgressState(offsets.Length, progress);
             var software = GetSoftware(workers, offsets.Length, progressState, token);
-
-            for (var i = 0; i < count; i++)
-            {
-                workers[i].Dispose();
-            }
 
             watch.Stop();
             Logger.LogDebug("Detecting software completed in {0}", watch.Elapsed);
