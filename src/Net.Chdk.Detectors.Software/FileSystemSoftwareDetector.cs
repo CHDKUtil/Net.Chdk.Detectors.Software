@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Net.Chdk.Model.Card;
+using Net.Chdk.Model.Category;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Boot;
 using System;
@@ -25,7 +26,7 @@ namespace Net.Chdk.Detectors.Software
             BootProviderResolver = bootProviderResolver;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, SoftwareCategoryInfo category, IProgress<double> progress, CancellationToken token)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, CategoryInfo category, IProgress<double> progress, CancellationToken token)
         {
             Logger.LogTrace("Detecting {0} software from {1} file system", category.Name, cardInfo.DriveLetter);
 

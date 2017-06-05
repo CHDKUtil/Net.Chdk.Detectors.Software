@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Net.Chdk.Model.Card;
+using Net.Chdk.Model.Category;
 using Net.Chdk.Model.Software;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace Net.Chdk.Detectors.Software
             SoftwareDetectors = softwareDetectors;
         }
 
-        public SoftwareInfo GetSoftware(CardInfo cardInfo, SoftwareCategoryInfo category, IProgress<double> progress, CancellationToken token)
+        public SoftwareInfo GetSoftware(CardInfo cardInfo, CategoryInfo category, IProgress<double> progress, CancellationToken token)
         {
             var baseBath = cardInfo.GetRootPath();
             return GetSoftware(baseBath, category.Name, progress, token);

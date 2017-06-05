@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Net.Chdk.Model.Card;
+using Net.Chdk.Model.Category;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Category;
 using System;
@@ -32,7 +33,7 @@ namespace Net.Chdk.Detectors.Software
                 .ToArray();
         }
 
-        private SoftwareInfo GetSoftware(CardInfo cardInfo, SoftwareCategoryInfo category, IProgress<double> progress, CancellationToken token)
+        private SoftwareInfo GetSoftware(CardInfo cardInfo, CategoryInfo category, IProgress<double> progress, CancellationToken token)
         {
             Logger.LogTrace("Detecting {0} software from {1}", category.Name, cardInfo.DriveLetter);
 
@@ -41,15 +42,15 @@ namespace Net.Chdk.Detectors.Software
                 .FirstOrDefault(s => s != null);
         }
 
-        private IEnumerable<SoftwareCategoryInfo> GetCategories()
+        private IEnumerable<CategoryInfo> GetCategories()
         {
             return CategoryProvider.GetCategories()
                 .Select(GetCategory);
         }
 
-        private static SoftwareCategoryInfo GetCategory(string categoryName)
+        private static CategoryInfo GetCategory(string categoryName)
         {
-            return new SoftwareCategoryInfo
+            return new CategoryInfo
             {
                 Name = categoryName,
             };

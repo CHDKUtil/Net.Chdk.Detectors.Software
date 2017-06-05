@@ -126,6 +126,10 @@
       <Project>{a41d61fe-2fb8-4892-ac7d-ecee7e61c637}</Project>
       <Name>Net.Chdk.Model.Card</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Net.Chdk.Model.Category\src\Net.Chdk.Model.Category\Net.Chdk.Model.Category.csproj">
+      <Project>{732DF01F-2379-4244-ABA1-48BA99EA1883}</Project>
+      <Name>Net.Chdk.Model.Category</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Net.Chdk.Model.Software\src\Net.Chdk.Model.Software\Net.Chdk.Model.Software.csproj">
       <Project>{7F492AD5-C9E5-4E13-9587-D0B88BA8D209}</Project>
       <Name>Net.Chdk.Model.Software</Name>
