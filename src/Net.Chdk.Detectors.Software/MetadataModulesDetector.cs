@@ -16,8 +16,8 @@ namespace Net.Chdk.Detectors.Software
 
         public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
         {
-            var basePath = card.GetRootPath();
-            return GetModules(basePath, software, progress, token);
+            var rootPath = card.GetRootPath();
+            return GetModules(rootPath, software, progress, token);
         }
 
         public ModulesInfo GetModules(string basePath, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
@@ -28,6 +28,7 @@ namespace Net.Chdk.Detectors.Software
             var modules = GetValue(basePath, software.Category, progress, token);
             if (!productName.Equals(modules?.ProductName, StringComparison.InvariantCulture))
                 return null;
+
             return modules;
         }
 

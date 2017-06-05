@@ -32,7 +32,8 @@ namespace Net.Chdk.Detectors.Software
 
         public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
         {
-            return GetModules(software, card.GetRootPath(), progress, token);
+            var rootPath = card.GetRootPath();
+            return GetModules(software, rootPath, progress, token);
         }
 
         public ModulesInfo GetModules(SoftwareInfo software, string basePath, IProgress<double> progress, CancellationToken token)
