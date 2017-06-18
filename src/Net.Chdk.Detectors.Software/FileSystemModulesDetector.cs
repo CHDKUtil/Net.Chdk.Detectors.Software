@@ -44,7 +44,10 @@ namespace Net.Chdk.Detectors.Software
             return new ModulesInfo
             {
                 Version = new Version("1.0"),
-                ProductName = productName,
+                Product = new ModulesProductInfo
+                {
+                    Name = productName
+                },
                 Modules = DoGetModules(software, basePath, progress, token)
             };
         }

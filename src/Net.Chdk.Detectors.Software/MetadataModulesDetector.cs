@@ -26,7 +26,7 @@ namespace Net.Chdk.Detectors.Software
             Logger.LogTrace("Detecting {0} modules from {1} metadata", productName, basePath);
 
             var modules = GetValue(basePath, software.Category, progress, token);
-            if (!productName.Equals(modules?.ProductName, StringComparison.InvariantCulture))
+            if (!productName.Equals(modules?.Product.Name, StringComparison.InvariantCulture))
                 return null;
 
             return modules;
