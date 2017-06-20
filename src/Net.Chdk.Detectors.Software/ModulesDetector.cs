@@ -19,7 +19,7 @@ namespace Net.Chdk.Detectors.Software
             ModulesDetectors = modulesDetectors;
         }
 
-        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
+        public ModulesInfo GetModules(CardInfo card, CardInfo card2, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
         {
             var productName = software.Product?.Name;
             if (productName == null)
@@ -28,7 +28,7 @@ namespace Net.Chdk.Detectors.Software
             Logger.LogTrace("Detecting {0} modules from {1}", productName, card.DriveLetter);
 
             return ModulesDetectors
-                .Select(d => d.GetModules(card, software, progress, token))
+                .Select(d => d.GetModules(card, card2, software, progress, token))
                 .FirstOrDefault(m => m != null);
         }
     }

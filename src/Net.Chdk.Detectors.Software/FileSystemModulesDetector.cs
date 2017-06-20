@@ -30,9 +30,11 @@ namespace Net.Chdk.Detectors.Software
             HashProvider = hashProvider;
         }
 
-        public ModulesInfo GetModules(CardInfo card, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
+        public ModulesInfo GetModules(CardInfo card, CardInfo card2, SoftwareInfo software, IProgress<double> progress, CancellationToken token)
         {
-            var rootPath = card.GetRootPath();
+            if (card2 == null)
+                return null;
+            var rootPath = card2.GetRootPath();
             return GetModules(software, rootPath, progress, token);
         }
 
