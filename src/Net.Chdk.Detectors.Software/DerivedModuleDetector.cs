@@ -10,7 +10,7 @@ namespace Net.Chdk.Detectors.Software
             return new ModuleInfo
             {
                 Created = software.Product.Created,
-                Changeset = software.Build.Changeset,
+                Changeset = software.Build?.Changeset,
                 Hash = GetHash(hashName),
             };
         }
