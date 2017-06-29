@@ -36,6 +36,15 @@ namespace Net.Chdk.Detectors.Software
                 .FirstOrDefault(s => s != null);
         }
 
+        public SoftwareInfo GetSoftware(byte[] buffer, IProgress<double> progress, CancellationToken token)
+        {
+            Logger.LogTrace("Detecting software from buffer");
+
+            return SoftwareDetectors
+                .Select(d => d.GetSoftware(buffer, progress, token))
+                .FirstOrDefault(s => s != null);
+        }
+
         public bool UpdateSoftware(SoftwareInfo software, byte[] buffer)
         {
             var productName = software.Product.Name;

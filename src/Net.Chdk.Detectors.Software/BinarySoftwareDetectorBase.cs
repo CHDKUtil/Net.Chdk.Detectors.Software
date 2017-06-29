@@ -51,12 +51,22 @@ namespace Net.Chdk.Detectors.Software
             }
 
             var inBuffer = File.ReadAllBytes(diskbootPath);
-            var detectors = GetDetectors();
-            var software = GetSoftware(detectors, inBuffer, progress, token);
+            var software = GetSoftware(inBuffer, progress, token);
             if (software != null)
             {
                 if (software.Product.Created == null)
                     software.Product.Created = File.GetCreationTimeUtc(diskbootPath);
+            }
+            return software;
+        }
+
+        public SoftwareInfo GetSoftware(byte[] inBuffer, IProgress<double> progress, CancellationToken token)
+        {
+            var detectors = GetDetectors();
+            var software = GetSoftware(detectors, inBuffer, progress, token);
+            if (software != null)
+            {
+                var fileName = BootProvider.FileName;
                 software.Hash = HashProvider.GetHash(inBuffer, fileName, HashName);
             }
             return software;
