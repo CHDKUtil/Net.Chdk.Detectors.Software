@@ -91,6 +91,8 @@ namespace Net.Chdk.Detectors.Software
                     software.Build.Changeset = software2.Build.Changeset;
                 if (software2.Build.Creator != null)
                     software.Build.Creator = software2.Build.Creator;
+                if (software2.Compiler != null)
+                    software.Compiler = software2.Compiler;
                 if (software.Encoding == null)
                     software.Encoding = software2.Encoding;
                 return true;
