@@ -44,6 +44,25 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
+        public override bool UpdateSoftware(SoftwareInfo software, byte[] inBuffer)
+        {
+            if (!CategoryName.Equals(software.Category.Name, StringComparison.InvariantCulture))
+                return false;
+
+            var software2 = GetSoftware(inBuffer, null, default(CancellationToken));
+            if (software2 != null)
+            {
+                software.Hash = software2.Hash;
+                software.Product = software2.Product;
+                software.Build = software2.Build;
+                software.Compiler = software2.Compiler;
+                software.Encoding = software2.Encoding;
+                return true;
+            }
+
+            return false;
+        }
+
         private readonly Lazy<IDictionary<byte[], SoftwareInfo>> _hash2software;
 
         private IDictionary<byte[], SoftwareInfo> Hash2Software => _hash2software.Value;

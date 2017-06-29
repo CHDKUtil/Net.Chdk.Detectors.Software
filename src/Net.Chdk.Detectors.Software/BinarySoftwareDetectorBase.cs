@@ -72,7 +72,7 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        public bool UpdateSoftware(SoftwareInfo software, byte[] inBuffer)
+        public virtual bool UpdateSoftware(SoftwareInfo software, byte[] inBuffer)
         {
             if (!CategoryName.Equals(software.Category.Name, StringComparison.InvariantCulture))
                 return false;
