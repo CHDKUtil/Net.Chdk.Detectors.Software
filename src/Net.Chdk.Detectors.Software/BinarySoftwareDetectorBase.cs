@@ -14,15 +14,15 @@ namespace Net.Chdk.Detectors.Software
 {
     abstract class BinarySoftwareDetectorBase : IInnerBinarySoftwareDetector
     {
-        private const string HashName = "sha256";
+        protected const string HashName = "sha256";
 
         protected ILogger Logger { get; }
         protected IBinaryDecoder BinaryDecoder { get; }
         protected IBootProvider BootProvider { get; }
+        protected ISoftwareHashProvider HashProvider { get; }
 
         private IEnumerable<IProductBinarySoftwareDetector> SoftwareDetectors { get; }
         private IEncodingProvider EncodingProvider { get; }
-        private ISoftwareHashProvider HashProvider { get; }
 
         protected BinarySoftwareDetectorBase(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, IEncodingProvider encodingProvider, ISoftwareHashProvider hashProvider, ILogger logger)
         {
@@ -60,7 +60,7 @@ namespace Net.Chdk.Detectors.Software
             return software;
         }
 
-        public SoftwareInfo GetSoftware(byte[] inBuffer, IProgress<double> progress, CancellationToken token)
+        public virtual SoftwareInfo GetSoftware(byte[] inBuffer, IProgress<double> progress, CancellationToken token)
         {
             var detectors = GetDetectors();
             var software = GetSoftware(detectors, inBuffer, progress, token);

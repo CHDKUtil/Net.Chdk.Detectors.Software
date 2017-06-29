@@ -83,6 +83,7 @@
     <Compile Include="DerivedModuleDetector.cs" />
     <Compile Include="EosBinarySoftwareDetector.cs" />
     <Compile Include="FileSystemModulesDetector.cs" />
+    <Compile Include="PsHashSoftwareDetector.cs" />
     <Compile Include="IInnerModuleDetector.cs" />
     <Compile Include="IInnerModulesDetector.cs" />
     <Compile Include="KnownPsBinarySoftwareDetector.cs" />
@@ -121,6 +122,10 @@
     <ProjectReference Include="..\..\..\Net.Chdk.Encoders.Binary.Core\src\Net.Chdk.Encoders.Binary.Core\Net.Chdk.Encoders.Binary.Core.csproj">
       <Project>{5e2fdedb-20fa-401d-ad6b-38088bb14d3a}</Project>
       <Name>Net.Chdk.Encoders.Binary.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Net.Chdk.Json\src\Net.Chdk.Json\Net.Chdk.Json.csproj">
+      <Project>{BC3C0D74-5A68-4791-BE4B-8B2BC724C0EC}</Project>
+      <Name>Net.Chdk.Json</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Net.Chdk.Model.Card\src\Net.Chdk.Model.Card\Net.Chdk.Model.Card.csproj">
       <Project>{a41d61fe-2fb8-4892-ac7d-ecee7e61c637}</Project>
