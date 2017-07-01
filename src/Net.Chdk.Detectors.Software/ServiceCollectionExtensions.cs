@@ -24,6 +24,12 @@ namespace Net.Chdk.Detectors.Software
                 .AddSingleton<IBinarySoftwareDetector, BinarySoftwareDetector>();
         }
 
+        public static IServiceCollection AddEosHashSoftwareDetector(this IServiceCollection serviceCollection)
+        {
+            return serviceCollection
+                .AddSingleton<IInnerBinarySoftwareDetector, EosHashSoftwareDetector>();
+        }
+
         public static IServiceCollection AddPsHashSoftwareDetector(this IServiceCollection serviceCollection)
         {
             return serviceCollection

@@ -82,6 +82,7 @@
     <Compile Include="BinarySoftwareDetector.cs" />
     <Compile Include="DerivedModuleDetector.cs" />
     <Compile Include="EosBinarySoftwareDetector.cs" />
+    <Compile Include="EosHashSoftwareDetector.cs" />
     <Compile Include="FileSystemModulesDetector.cs" />
     <Compile Include="HashSoftwareDetector.cs" />
     <Compile Include="IInnerModuleDetector.cs" />
