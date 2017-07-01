@@ -83,7 +83,7 @@
     <Compile Include="DerivedModuleDetector.cs" />
     <Compile Include="EosBinarySoftwareDetector.cs" />
     <Compile Include="FileSystemModulesDetector.cs" />
-    <Compile Include="PsHashSoftwareDetector.cs" />
+    <Compile Include="HashSoftwareDetector.cs" />
     <Compile Include="IInnerModuleDetector.cs" />
     <Compile Include="IInnerModulesDetector.cs" />
     <Compile Include="KnownPsBinarySoftwareDetector.cs" />
@@ -91,6 +91,7 @@
     <Compile Include="MetadataModulesDetector.cs" />
     <Compile Include="ModulesDetector.cs" />
     <Compile Include="PsBinarySoftwareDetector.cs" />
+    <Compile Include="PsHashSoftwareDetector.cs" />
     <Compile Include="UnknownPsBinarySoftwareDetector.cs" />
     <Compile Include="FileSystemSoftwareDetector.cs" />
     <Compile Include="IInnerSoftwareDetector.cs" />
