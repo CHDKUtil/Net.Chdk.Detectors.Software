@@ -8,8 +8,8 @@ namespace Net.Chdk.Detectors.Software
 {
     sealed class EosBinarySoftwareDetector : BinarySoftwareDetectorBase
     {
-        public EosBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, IEncodingProvider encodingProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
-            : base(softwareDetectors, binaryDecoder, bootProviderResolver, encodingProvider, hashProvider, loggerFactory.CreateLogger<EosBinarySoftwareDetector>())
+        public EosBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
+            : base(softwareDetectors, binaryDecoder, bootProviderResolver, cameraProvider, hashProvider, loggerFactory.CreateLogger<EosBinarySoftwareDetector>())
         {
         }
 

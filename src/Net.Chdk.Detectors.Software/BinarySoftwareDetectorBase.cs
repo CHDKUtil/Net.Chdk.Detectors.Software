@@ -22,15 +22,15 @@ namespace Net.Chdk.Detectors.Software
         protected ISoftwareHashProvider HashProvider { get; }
 
         private IEnumerable<IProductBinarySoftwareDetector> SoftwareDetectors { get; }
-        private IEncodingProvider EncodingProvider { get; }
+        private ICameraProvider CameraProvider { get; }
 
-        protected BinarySoftwareDetectorBase(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, IEncodingProvider encodingProvider, ISoftwareHashProvider hashProvider, ILogger logger)
+        protected BinarySoftwareDetectorBase(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
         {
             Logger = logger;
             SoftwareDetectors = softwareDetectors;
             BinaryDecoder = binaryDecoder;
             BootProvider = bootProviderResolver.GetBootProvider(CategoryName);
-            EncodingProvider = encodingProvider;
+            CameraProvider = cameraProvider;
             HashProvider = hashProvider;
         }
 
@@ -191,7 +191,7 @@ namespace Net.Chdk.Detectors.Software
         private SoftwareEncodingInfo GetEncoding(SoftwareProductInfo product, SoftwareCameraInfo camera, SoftwareEncodingInfo encoding)
         {
             return encoding
-                ?? EncodingProvider.GetEncoding(product, camera);
+                ?? CameraProvider.GetEncoding(product, camera);
         }
 
         private IEnumerable<IProductBinarySoftwareDetector> GetDetectors()
