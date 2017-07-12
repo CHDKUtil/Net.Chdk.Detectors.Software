@@ -1,6 +1,5 @@
 ﻿using Net.Chdk.Encoders.Binary;
 using Net.Chdk.Model.Software;
-using Net.Chdk.Providers.Boot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,14 +17,14 @@ namespace Net.Chdk.Detectors.Software
         private readonly Action<uint?> decode;
         private readonly uint?[] offsets;
 
-        public BinarySoftwareDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBootProvider bootProvider, IBinaryDecoder binaryDecoder, byte[] inBuffer, int startIndex, int endIndex, uint?[] offsets)
+        public BinarySoftwareDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] prefix, byte[] inBuffer, int startIndex, int endIndex, uint?[] offsets)
             : base(detectors)
         {
             this.inBuffer = inBuffer;
             if (offsets != null)
             {
-                var prefixLength = bootProvider.Prefix != null
-                    ? bootProvider.Prefix.Length
+                var prefixLength = prefix != null
+                    ? prefix.Length
                     : 0;
                 this.encBuffer = new byte[inBuffer.Length - prefixLength];
                 Array.Copy(inBuffer, prefixLength, encBuffer, 0, encBuffer.Length);
@@ -38,8 +37,8 @@ namespace Net.Chdk.Detectors.Software
             }
         }
 
-        public BinarySoftwareDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBootProvider bootProvider, IBinaryDecoder binaryDecoder, byte[] inBuffer, SoftwareEncodingInfo encoding)
-            : this(detectors, bootProvider, binaryDecoder, inBuffer, 0, 1, encoding != null ? new[] { encoding.Data } : null)
+        public BinarySoftwareDetectorWorker(IEnumerable<IProductBinarySoftwareDetector> detectors, IBinaryDecoder binaryDecoder, byte[] prefix, byte[] inBuffer, SoftwareEncodingInfo encoding)
+            : this(detectors, binaryDecoder, prefix, inBuffer, 0, 1, encoding != null ? new[] { encoding.Data } : null)
         {
         }
 

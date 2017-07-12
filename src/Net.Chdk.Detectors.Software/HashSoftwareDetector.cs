@@ -27,15 +27,15 @@ namespace Net.Chdk.Detectors.Software
 
     abstract class HashSoftwareDetector : BinarySoftwareDetectorBase
     {
-        protected HashSoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
-            : base(softwareDetectors, binaryDecoder, bootProviderResolver, cameraProvider, hashProvider, logger)
+        protected HashSoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
+            : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, logger)
         {
             _hash2software = new Lazy<IDictionary<byte[], SoftwareInfo>>(GetHash2Software);
         }
 
         public override SoftwareInfo GetSoftware(byte[] inBuffer, IProgress<double> progress, CancellationToken token)
         {
-            var fileName = BootProvider.FileName;
+            var fileName = BootProvider.GetFileName(CategoryName);
             var hash = HashProvider.GetHash(inBuffer, fileName, HashName);
             var hashStr = hash.Values[fileName.ToLowerInvariant()];
             var hashBytes = GetHashBytes(hashStr);

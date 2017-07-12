@@ -24,12 +24,12 @@ namespace Net.Chdk.Detectors.Software
         private IEnumerable<IProductBinarySoftwareDetector> SoftwareDetectors { get; }
         private ICameraProvider CameraProvider { get; }
 
-        protected BinarySoftwareDetectorBase(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
+        protected BinarySoftwareDetectorBase(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
         {
             Logger = logger;
             SoftwareDetectors = softwareDetectors;
             BinaryDecoder = binaryDecoder;
-            BootProvider = bootProviderResolver.GetBootProvider(CategoryName);
+            BootProvider = bootProvider;
             CameraProvider = cameraProvider;
             HashProvider = hashProvider;
         }
@@ -39,7 +39,7 @@ namespace Net.Chdk.Detectors.Software
             if (!CategoryName.Equals(categoryName, StringComparison.InvariantCulture))
                 return null;
 
-            var fileName = BootProvider.FileName;
+            var fileName = BootProvider.GetFileName(CategoryName);
             var diskbootPath = Path.Combine(basePath, fileName);
 
             Logger.LogTrace("Detecting software from {0}", diskbootPath);
@@ -63,10 +63,11 @@ namespace Net.Chdk.Detectors.Software
         public virtual SoftwareInfo GetSoftware(byte[] inBuffer, IProgress<double> progress, CancellationToken token)
         {
             var detectors = GetDetectors();
-            var software = GetSoftware(detectors, inBuffer, progress, token);
+            var prefix = BootProvider.GetPrefix(CategoryName);
+            var software = GetSoftware(detectors, prefix, inBuffer, progress, token);
             if (software != null)
             {
-                var fileName = BootProvider.FileName;
+                var fileName = BootProvider.GetFileName(CategoryName);
                 software.Hash = HashProvider.GetHash(inBuffer, fileName, HashName);
             }
             return software;
@@ -80,7 +81,8 @@ namespace Net.Chdk.Detectors.Software
             var detectors = GetDetectors(software.Product);
             var encoding = GetEncoding(software.Product, software.Camera, software.Encoding);
 
-            software.Hash = HashProvider.GetHash(inBuffer, BootProvider.FileName, HashName);
+            var fileName = BootProvider.GetFileName(CategoryName);
+            software.Hash = HashProvider.GetHash(inBuffer, fileName, HashName);
 
             var software2 = GetSoftware(detectors, inBuffer, encoding);
             if (software2 != null)
@@ -104,31 +106,32 @@ namespace Net.Chdk.Detectors.Software
         private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, SoftwareEncodingInfo encoding,
             IProgress<double> progress = null, CancellationToken token = default(CancellationToken))
         {
+            var prefix = BootProvider.GetPrefix(CategoryName);
             if (encoding == null)
-                return GetSoftware(detectors, inBuffer, progress, token);
-            return DoGetSoftware(detectors, inBuffer, encoding, token);
+                return GetSoftware(detectors, prefix, inBuffer, progress, token);
+            return DoGetSoftware(detectors, prefix, inBuffer, encoding, token);
         }
 
-        private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, IProgress<double> progress, CancellationToken token)
+        private SoftwareInfo GetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] prefix, byte[] inBuffer, IProgress<double> progress, CancellationToken token)
         {
-            if (!BinaryDecoder.ValidatePrefix(inBuffer, inBuffer.Length, BootProvider.Prefix))
-                return PlainGetSoftware(detectors, inBuffer, token);
-            return DoGetSoftware(detectors, inBuffer, progress, token);
+            if (!BinaryDecoder.ValidatePrefix(inBuffer, inBuffer.Length, prefix))
+                return PlainGetSoftware(detectors, prefix, inBuffer, token);
+            return DoGetSoftware(detectors, prefix, inBuffer, progress, token);
         }
 
-        protected SoftwareInfo PlainGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, CancellationToken token)
+        protected SoftwareInfo PlainGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] prefix, byte[] inBuffer, CancellationToken token)
         {
-            var worker = new BinarySoftwareDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, new SoftwareEncodingInfo());
+            var worker = new BinarySoftwareDetectorWorker(detectors, BinaryDecoder, prefix, inBuffer, new SoftwareEncodingInfo());
             return worker.GetSoftware(new ProgressState(), token);
         }
 
-        private SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
+        private SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] prefix, byte[] inBuffer, SoftwareEncodingInfo encoding, CancellationToken token)
         {
-            var worker = new BinarySoftwareDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer, encoding);
+            var worker = new BinarySoftwareDetectorWorker(detectors, BinaryDecoder, prefix, inBuffer, encoding);
             return worker.GetSoftware(new ProgressState(), token);
         }
 
-        protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, IProgress<double> progress, CancellationToken token)
+        protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] prefix, byte[] inBuffer, IProgress<double> progress, CancellationToken token)
         {
             var maxThreads = Properties.Settings.Default.MaxThreads;
             var processorCount = Environment.ProcessorCount;
@@ -144,7 +147,7 @@ namespace Net.Chdk.Detectors.Software
             var workers = new BinarySoftwareDetectorWorker[count];
             for (var i = 0; i < count; i++)
             {
-                workers[i] = new BinarySoftwareDetectorWorker(detectors, BootProvider, BinaryDecoder, inBuffer,
+                workers[i] = new BinarySoftwareDetectorWorker(detectors, BinaryDecoder, prefix, inBuffer,
                     i * offsets.Length / count, (i + 1) * offsets.Length / count, offsets);
             }
 

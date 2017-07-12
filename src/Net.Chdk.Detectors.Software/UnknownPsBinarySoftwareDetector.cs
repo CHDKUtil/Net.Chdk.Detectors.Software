@@ -12,15 +12,15 @@ namespace Net.Chdk.Detectors.Software
 {
     sealed class UnknownPsBinarySoftwareDetector : PsBinarySoftwareDetector
     {
-        public UnknownPsBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
-            : base(softwareDetectors, binaryDecoder, bootProviderResolver, cameraProvider, hashProvider, loggerFactory.CreateLogger<UnknownPsBinarySoftwareDetector>())
+        public UnknownPsBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
+            : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, loggerFactory.CreateLogger<UnknownPsBinarySoftwareDetector>())
         {
         }
 
-        protected override SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] inBuffer, IProgress<double> progress, CancellationToken token)
+        protected override SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] prefix, byte[] inBuffer, IProgress<double> progress, CancellationToken token)
         {
-            return PlainGetSoftware(detectors, inBuffer, token)
-                ?? base.DoGetSoftware(detectors, inBuffer, progress, token);
+            return PlainGetSoftware(detectors, prefix, inBuffer, token)
+                ?? base.DoGetSoftware(detectors, prefix, inBuffer, progress, token);
         }
 
         protected override uint?[] GetOffsets()

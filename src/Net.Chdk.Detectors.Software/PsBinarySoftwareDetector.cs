@@ -8,8 +8,8 @@ namespace Net.Chdk.Detectors.Software
 {
     abstract class PsBinarySoftwareDetector : BinarySoftwareDetectorBase
     {
-        protected PsBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
-            : base(softwareDetectors, binaryDecoder, bootProviderResolver, cameraProvider, hashProvider, logger)
+        protected PsBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
+            : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, logger)
         {
         }
 

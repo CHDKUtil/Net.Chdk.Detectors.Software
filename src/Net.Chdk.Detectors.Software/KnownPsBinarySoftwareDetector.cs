@@ -8,22 +8,25 @@ namespace Net.Chdk.Detectors.Software
 {
     sealed class KnownPsBinarySoftwareDetector : PsBinarySoftwareDetector
     {
-        public KnownPsBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProviderResolver bootProviderResolver, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
-            : base(softwareDetectors, binaryDecoder, bootProviderResolver, cameraProvider, hashProvider, loggerFactory.CreateLogger<KnownPsBinarySoftwareDetector>())
+        private int[][] Offsets { get; }
+
+        public KnownPsBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
+            : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, loggerFactory.CreateLogger<KnownPsBinarySoftwareDetector>())
         {
+            Offsets = bootProvider.GetOffsets(CategoryName);
         }
 
         protected override uint?[] GetOffsets()
         {
-            var offsets = new uint?[BootProvider.Offsets.Length + 1];
-            for (var v = 0; v < BootProvider.Offsets.Length; v++)
+            var offsets = new uint?[Offsets.Length + 1];
+            for (var v = 0; v < Offsets.Length; v++)
                 offsets[v + 1] = GetOffsets(v + 1);
             return offsets;
         }
 
         private uint? GetOffsets(int version)
         {
-            var offsets = BootProvider.Offsets[version - 1];
+            var offsets = Offsets[version - 1];
             return GetOffsets(offsets);
         }
 

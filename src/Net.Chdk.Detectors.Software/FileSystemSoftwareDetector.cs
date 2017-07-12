@@ -17,22 +17,22 @@ namespace Net.Chdk.Detectors.Software
 
         private ILogger Logger { get; }
         private IEnumerable<IProductDetector> ProductDetectors { get; }
-        private IBootProviderResolver BootProviderResolver { get; }
+        private IBootProvider BootProvider { get; }
 
-        public FileSystemSoftwareDetector(IEnumerable<IProductDetector> productDetectors, IBootProviderResolver bootProviderResolver, ILoggerFactory loggerFactory)
+        public FileSystemSoftwareDetector(IEnumerable<IProductDetector> productDetectors, IBootProvider bootProvider, ILoggerFactory loggerFactory)
         {
             Logger = loggerFactory.CreateLogger<FileSystemSoftwareDetector>();
             ProductDetectors = productDetectors;
-            BootProviderResolver = bootProviderResolver;
+            BootProvider = bootProvider;
         }
 
         public SoftwareInfo GetSoftware(CardInfo cardInfo, CategoryInfo category, IProgress<double> progress, CancellationToken token)
         {
             Logger.LogTrace("Detecting {0} software from {1} file system", category.Name, cardInfo.DriveLetter);
 
-            var bootProvider = BootProviderResolver.GetBootProvider(category.Name);
             var rootPath = cardInfo.GetRootPath();
-            var filePath = Path.Combine(rootPath, bootProvider.FileName);
+            var fileName = BootProvider.GetFileName(category.Name);
+            var filePath = Path.Combine(rootPath, fileName);
             if (!File.Exists(filePath))
                 return null;
             return new SoftwareInfo
