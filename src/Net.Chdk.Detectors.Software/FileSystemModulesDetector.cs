@@ -18,14 +18,14 @@ namespace Net.Chdk.Detectors.Software
         private static Version Version => new Version("1.0");
 
         private ILogger Logger { get; }
-        private IModuleProviderResolver ModuleProviderResolver { get; }
+        private IModuleProvider ModuleProvider { get; }
         private IEnumerable<IInnerModuleDetector> ModuleDetectors { get; }
         private IHashProvider HashProvider { get; }
 
-        public FileSystemModulesDetector(IModuleProviderResolver moduleProviderResolver, IEnumerable<IInnerModuleDetector> moduleDetectors, IHashProvider hashProvider, ILoggerFactory loggerFactory)
+        public FileSystemModulesDetector(IModuleProvider moduleProvider, IEnumerable<IInnerModuleDetector> moduleDetectors, IHashProvider hashProvider, ILoggerFactory loggerFactory)
         {
             Logger = loggerFactory.CreateLogger<FileSystemModulesDetector>();
-            ModuleProviderResolver = moduleProviderResolver;
+            ModuleProvider = moduleProvider;
             ModuleDetectors = moduleDetectors;
             HashProvider = hashProvider;
         }
@@ -57,8 +57,7 @@ namespace Net.Chdk.Detectors.Software
         private Dictionary<string, ModuleInfo> DoGetModules(SoftwareInfo software, string basePath, IProgress<double> progress, CancellationToken token)
         {
             var productName = software.Product.Name;
-            var moduleProvider = ModuleProviderResolver.GetModuleProvider(productName);
-            var modulesPath = moduleProvider?.Path;
+            var modulesPath = ModuleProvider.GetPath(productName);
             if (modulesPath == null)
                 return null;
 
@@ -68,7 +67,8 @@ namespace Net.Chdk.Detectors.Software
 
             token.ThrowIfCancellationRequested();
 
-            var pattern = string.Format("*{0}", moduleProvider.Extension);
+            var extension = ModuleProvider.GetExtension(productName);
+            var pattern = string.Format("*{0}", extension);
             var files = Directory.EnumerateFiles(path, pattern);
             var count = progress != null
                 ? files.Count()
@@ -79,19 +79,20 @@ namespace Net.Chdk.Detectors.Software
             {
                 token.ThrowIfCancellationRequested();
 
-                AddFile(moduleProvider, software, modulesPath, file, modules);
+                AddFile(software, modulesPath, file, modules);
                 if (progress != null)
                     progress.Report((double)(++index) / count);
             }
             return modules;
         }
 
-        private void AddFile(IModuleProvider moduleProvider, SoftwareInfo software, string modulesPath, string file, Dictionary<string, ModuleInfo> modules)
+        private void AddFile(SoftwareInfo software, string modulesPath, string file, Dictionary<string, ModuleInfo> modules)
         {
             var fileName = Path.GetFileName(file);
             var filePath = Path.Combine(modulesPath, fileName).ToLowerInvariant();
 
-            var moduleName = moduleProvider.GetModuleName(filePath);
+            var productName = software.Product.Name;
+            var moduleName = ModuleProvider.GetModuleName(productName, filePath);
             if (moduleName == null)
             {
                 Logger.LogError("Missing module for {0}", filePath);
