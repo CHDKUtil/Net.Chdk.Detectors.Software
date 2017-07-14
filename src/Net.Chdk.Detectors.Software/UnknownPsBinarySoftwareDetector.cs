@@ -3,6 +3,7 @@ using Net.Chdk.Detectors.Software.Properties;
 using Net.Chdk.Encoders.Binary;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Boot;
+using Net.Chdk.Providers.Camera;
 using Net.Chdk.Providers.Software;
 using System;
 using System.Collections.Generic;
