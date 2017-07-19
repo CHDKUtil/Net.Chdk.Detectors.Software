@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Chdk.Encoders.Binary;
 using Net.Chdk.Json;
 using Net.Chdk.Model.Software;
@@ -28,8 +29,8 @@ namespace Net.Chdk.Detectors.Software
 
     abstract class HashSoftwareDetector : BinarySoftwareDetectorBase
     {
-        protected HashSoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
-            : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, logger)
+        protected HashSoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, IOptions<SoftwareDetectorSettings> settings, ILogger logger)
+            : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, settings, logger)
         {
             _hash2software = new Lazy<IDictionary<byte[], SoftwareInfo>>(GetHash2Software);
         }
@@ -40,14 +41,13 @@ namespace Net.Chdk.Detectors.Software
             var hash = HashProvider.GetHash(inBuffer, fileName, HashName);
             var hashStr = hash.Values[fileName.ToLowerInvariant()];
             var hashBytes = GetHashBytes(hashStr);
-            SoftwareInfo software;
-            Hash2Software.TryGetValue(hashBytes, out software);
+            Hash2Software.TryGetValue(hashBytes, out SoftwareInfo software);
             return software;
         }
 
         public override bool UpdateSoftware(SoftwareInfo software, byte[] inBuffer)
         {
-            if (!CategoryName.Equals(software.Category.Name, StringComparison.InvariantCulture))
+            if (!CategoryName.Equals(software.Category.Name, StringComparison.Ordinal))
                 return false;
 
             var software2 = GetSoftware(inBuffer, null, default(CancellationToken));

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Net.Chdk.Detectors.Software.Properties;
+using Microsoft.Extensions.Options;
 using Net.Chdk.Encoders.Binary;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Boot;
@@ -13,8 +13,8 @@ namespace Net.Chdk.Detectors.Software
 {
     sealed class UnknownPsBinarySoftwareDetector : PsBinarySoftwareDetector
     {
-        public UnknownPsBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILoggerFactory loggerFactory)
-            : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, loggerFactory.CreateLogger<UnknownPsBinarySoftwareDetector>())
+        public UnknownPsBinarySoftwareDetector(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, IOptions<SoftwareDetectorSettings> settings, ILoggerFactory loggerFactory)
+            : base(softwareDetectors, binaryDecoder, bootProvider, cameraProvider, hashProvider, settings, loggerFactory.CreateLogger<UnknownPsBinarySoftwareDetector>())
         {
         }
 
@@ -30,7 +30,7 @@ namespace Net.Chdk.Detectors.Software
             var offsets = new uint?[offsetCount];
             var index = 0;
             Offsets.Empty.GetAllOffsets(offsets, ref index);
-            if (Settings.Default.ShuffleOffsets)
+            if (ShuffleOffsets)
                 Shuffle(offsets);
             return offsets;
         }

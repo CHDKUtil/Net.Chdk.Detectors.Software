@@ -29,7 +29,7 @@ namespace Net.Chdk.Detectors.Software
 
             var filePath = Path.Combine(basePath, Directories.Metadata, software.Category.Name, FileName);
             var modules = GetValue(basePath2, filePath, progress, token);
-            if (!productName.Equals(modules?.Product.Name, StringComparison.InvariantCulture))
+            if (!productName.Equals(modules?.Product.Name, StringComparison.Ordinal))
                 return null;
 
             return modules;

@@ -46,7 +46,7 @@ namespace Net.Chdk.Detectors.Software
         private SoftwareProductInfo GetProduct(CardInfo cardInfo, string categoryName)
         {
             return ProductDetectors
-                .Where(d => categoryName.Equals(d.CategoryName, StringComparison.InvariantCulture))
+                .Where(d => categoryName.Equals(d.CategoryName, StringComparison.Ordinal))
                 .Select(d => d.GetProduct(cardInfo))
                 .FirstOrDefault(p => p != null);
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Chdk.Model.Card;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Crypto;
@@ -13,17 +14,19 @@ namespace Net.Chdk.Detectors.Software
 {
     sealed class FileSystemModulesDetector : IInnerModulesDetector, IFileSystemModulesDetector
     {
-        private const string HashName = "sha256";
-
         private static Version Version => new Version("1.0");
 
+        private SoftwareDetectorSettings Settings { get; }
         private ILogger Logger { get; }
         private IModuleProvider ModuleProvider { get; }
         private IEnumerable<IInnerModuleDetector> ModuleDetectors { get; }
         private IHashProvider HashProvider { get; }
 
-        public FileSystemModulesDetector(IModuleProvider moduleProvider, IEnumerable<IInnerModuleDetector> moduleDetectors, IHashProvider hashProvider, ILoggerFactory loggerFactory)
+        private string HashName => Settings.HashName;
+
+        public FileSystemModulesDetector(IModuleProvider moduleProvider, IEnumerable<IInnerModuleDetector> moduleDetectors, IHashProvider hashProvider, IOptions<SoftwareDetectorSettings> settings, ILoggerFactory loggerFactory)
         {
+            Settings = settings.Value;
             Logger = loggerFactory.CreateLogger<FileSystemModulesDetector>();
             ModuleProvider = moduleProvider;
             ModuleDetectors = moduleDetectors;
@@ -101,8 +104,7 @@ namespace Net.Chdk.Detectors.Software
 
             var buffer = File.ReadAllBytes(file);
 
-            ModuleInfo moduleInfo;
-            if (!modules.TryGetValue(moduleName, out moduleInfo))
+            if (!modules.TryGetValue(moduleName, out ModuleInfo moduleInfo))
             {
                 moduleInfo = GetModule(software, buffer);
                 modules.Add(moduleName, moduleInfo);

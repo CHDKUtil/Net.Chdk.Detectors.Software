@@ -24,7 +24,7 @@ namespace Net.Chdk.Detectors.Software
         private IEnumerable<IProductBinaryModuleDetector> GetDetectors(SoftwareInfo software)
         {
             return Detectors
-                .Where(d => d.ProductName.Equals(software.Product.Name, StringComparison.InvariantCulture));
+                .Where(d => d.ProductName.Equals(software.Product.Name, StringComparison.Ordinal));
         }
     }
 }

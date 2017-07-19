@@ -1,180 +1,53 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{88466BBA-B210-4479-B577-4651FB2E5918}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <Description>CHIMP software detectors</Description>
     <RootNamespace>Net.Chdk.Detectors.Software</RootNamespace>
-    <AssemblyName>Net.Chdk.Detectors.Software</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <Product>CHIMP</Product>
+    <Authors>Dmitry Shechtman</Authors>
+    <Copyright>Copyright © 2017 Dmitry Shechtman</Copyright>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Net.Chdk.Detectors.Software</Title>
+    <PackageVersion>$(Version)-alpha</PackageVersion>
+    <PackageIconUrl>https://raw.githubusercontent.com/CHDKUtil/CHIMP/master/tiny.png</PackageIconUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/CHDKUtil/Net.Chdk.Detectors.Software/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/CHDKUtil/Net.Chdk.Detectors.Software</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/CHDKUtil/Net.Chdk.Detectors.Software</RepositoryUrl>
+    <PackageTags>chimp detector software</PackageTags>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatSpecificWarningsAsErrors />
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatSpecificWarningsAsErrors />
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.1.1\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=1.1.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Extensions.Logging.Abstractions.1.1.2\lib\netstandard1.1\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Net.Chdk.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Net.Chdk.Core.0.2.0-alpha\lib\netstandard1.0\Net.Chdk.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Net.Chdk.Encoders.Binary.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Net.Chdk.Encoders.Binary.Core.0.1.0-alpha\lib\netstandard1.0\Net.Chdk.Encoders.Binary.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Net.Chdk.Json, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Net.Chdk.Json.0.1.0-alpha\lib\netstandard1.0\Net.Chdk.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Net.Chdk.Model.Card, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Net.Chdk.Model.Card.0.1.0-alpha\lib\netstandard1.0\Net.Chdk.Model.Card.dll</HintPath>
-    </Reference>
-    <Reference Include="Net.Chdk.Model.Category, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Net.Chdk.Model.Category.0.1.0-alpha\lib\netstandard1.0\Net.Chdk.Model.Category.dll</HintPath>
-    </Reference>
-    <Reference Include="Net.Chdk.Model.Software, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Net.Chdk.Model.Software.0.1.0-alpha\lib\netstandard1.0\Net.Chdk.Model.Software.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="microsoft.extensions.dependencyinjection.abstractions" Version="1.1.1" />
+    <PackageReference Include="microsoft.extensions.logging.abstractions" Version="1.1.2" />
+    <PackageReference Include="microsoft.extensions.options" Version="1.1.2" />
+    <PackageReference Include="Net.Chdk.Detectors.Base" Version="0.1.0-alpha" />
+    <PackageReference Include="Net.Chdk.Detectors.Software.Core" Version="0.1.0-alpha" />
+    <PackageReference Include="Net.Chdk.Encoders.Binary.Core" Version="0.1.0-alpha" />
+    <PackageReference Include="Net.Chdk.Providers.Boot.Core" Version="0.1.0-alpha" />
+    <PackageReference Include="Net.Chdk.Providers.Camera.Core" Version="0.4.0-alpha" />
+    <PackageReference Include="Net.Chdk.Providers.Category.Core" Version="0.1.0-alpha" />
+    <PackageReference Include="Net.Chdk.Providers.Crypto.Core" Version="0.1.0-alpha" />
+    <PackageReference Include="Net.Chdk.Providers.Software.Core" Version="0.3.1-alpha" />
+    <PackageReference Include="Net.Chdk.Validators.Core" Version="0.1.0-alpha" />
+    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="BinaryDetectorWorker.cs" />
-    <Compile Include="BinaryModuleDetectorWorker.cs" />
-    <Compile Include="BinarySoftwareDetectorWorker.cs" />
-    <Compile Include="BinaryModuleDetector.cs" />
-    <Compile Include="BinarySoftwareDetector.cs" />
-    <Compile Include="DerivedModuleDetector.cs" />
-    <Compile Include="EosBinarySoftwareDetector.cs" />
-    <Compile Include="EosHashSoftwareDetector.cs" />
-    <Compile Include="FileSystemModulesDetector.cs" />
-    <Compile Include="HashSoftwareDetector.cs" />
-    <Compile Include="IInnerModuleDetector.cs" />
-    <Compile Include="IInnerModulesDetector.cs" />
-    <Compile Include="KnownPsBinarySoftwareDetector.cs" />
-    <Compile Include="BinarySoftwareDetectorBase.cs" />
-    <Compile Include="MetadataModulesDetector.cs" />
-    <Compile Include="ModulesDetector.cs" />
-    <Compile Include="PsBinarySoftwareDetector.cs" />
-    <Compile Include="PsHashSoftwareDetector.cs" />
-    <Compile Include="UnknownPsBinarySoftwareDetector.cs" />
-    <Compile Include="FileSystemSoftwareDetector.cs" />
-    <Compile Include="IInnerSoftwareDetector.cs" />
-    <Compile Include="MetadataSoftwareDetector.cs" />
-    <Compile Include="Offsets.cs" />
-    <Compile Include="ProgressState.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="ServiceCollectionExtensions.cs" />
-    <Compile Include="SoftwareDetector.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Net.Chdk.Detectors.Core\src\Net.Chdk.Detectors.Core\Net.Chdk.Detectors.Core.csproj">
-      <Project>{B5899F00-8BD7-4776-A677-86177A796146}</Project>
-      <Name>Net.Chdk.Detectors.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Net.Chdk.Detectors.Software.Core\src\Net.Chdk.Detectors.Software.Core\Net.Chdk.Detectors.Software.Core.csproj">
-      <Project>{D385AB93-0DB5-45AA-994A-5E4B671BEF40}</Project>
-      <Name>Net.Chdk.Detectors.Software.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Net.Chdk.Providers.Boot.Core\src\Net.Chdk.Providers.Boot.Core\Net.Chdk.Providers.Boot.Core.csproj">
-      <Project>{4E4FA15A-4A88-4CAF-A8E1-FC507177EAD4}</Project>
-      <Name>Net.Chdk.Providers.Boot.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Net.Chdk.Providers.Category.Core\src\Net.Chdk.Providers.Category.Core\Net.Chdk.Providers.Category.Core.csproj">
-      <Project>{05B4FC36-AB60-48A6-A12C-0D8BB73843DD}</Project>
-      <Name>Net.Chdk.Providers.Category.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Net.Chdk.Providers.Crypto.Core\src\Net.Chdk.Providers.Crypto.Core\Net.Chdk.Providers.Crypto.Core.csproj">
-      <Project>{5A6B4079-63EF-42BC-BAF8-F6C3480A4EC6}</Project>
-      <Name>Net.Chdk.Providers.Crypto.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Net.Chdk.Providers.Software.Core\src\Net.Chdk.Providers.Software.Core\Net.Chdk.Providers.Software.Core.csproj">
-      <Project>{F763A515-BDB0-4088-8B23-15B02C094485}</Project>
-      <Name>Net.Chdk.Providers.Software.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Net.Chdk.Validators.Core\src\Net.Chdk.Validators.Core\Net.Chdk.Validators.Core.csproj">
-      <Project>{850646A6-01CE-48D5-9868-0D1CFC4F48D5}</Project>
-      <Name>Net.Chdk.Validators.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <Import Project="..\..\..\Net.Chdk.Core\src\Net.Chdk.Shared\Net.Chdk.Shared.projitems" Label="Shared" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

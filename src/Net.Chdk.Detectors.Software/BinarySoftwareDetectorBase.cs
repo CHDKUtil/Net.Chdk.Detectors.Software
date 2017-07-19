@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Chdk.Encoders.Binary;
 using Net.Chdk.Model.Software;
 using Net.Chdk.Providers.Boot;
@@ -15,18 +16,23 @@ namespace Net.Chdk.Detectors.Software
 {
     abstract class BinarySoftwareDetectorBase : IInnerBinarySoftwareDetector
     {
-        protected const string HashName = "sha256";
-
+        protected SoftwareDetectorSettings Settings { get; }
         protected ILogger Logger { get; }
         protected IBinaryDecoder BinaryDecoder { get; }
         protected IBootProvider BootProvider { get; }
         protected ISoftwareHashProvider HashProvider { get; }
 
+        protected string HashName => Settings.HashName;
+        protected bool ShuffleOffsets => Settings.ShuffleOffsets;
+        protected int MaxThreads => Settings.MaxThreads;
+
         private IEnumerable<IProductBinarySoftwareDetector> SoftwareDetectors { get; }
         private ICameraProvider CameraProvider { get; }
 
-        protected BinarySoftwareDetectorBase(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider, ISoftwareHashProvider hashProvider, ILogger logger)
+        protected BinarySoftwareDetectorBase(IEnumerable<IProductBinarySoftwareDetector> softwareDetectors, IBinaryDecoder binaryDecoder, IBootProvider bootProvider, ICameraProvider cameraProvider,
+            ISoftwareHashProvider hashProvider, IOptions<SoftwareDetectorSettings> settings, ILogger logger)
         {
+            Settings = settings.Value;
             Logger = logger;
             SoftwareDetectors = softwareDetectors;
             BinaryDecoder = binaryDecoder;
@@ -37,7 +43,7 @@ namespace Net.Chdk.Detectors.Software
 
         public SoftwareInfo GetSoftware(string basePath, string categoryName, IProgress<double> progress, CancellationToken token)
         {
-            if (!CategoryName.Equals(categoryName, StringComparison.InvariantCulture))
+            if (!CategoryName.Equals(categoryName, StringComparison.Ordinal))
                 return null;
 
             var fileName = BootProvider.GetFileName(CategoryName);
@@ -76,7 +82,7 @@ namespace Net.Chdk.Detectors.Software
 
         public virtual bool UpdateSoftware(SoftwareInfo software, byte[] inBuffer)
         {
-            if (!CategoryName.Equals(software.Category.Name, StringComparison.InvariantCulture))
+            if (!CategoryName.Equals(software.Category.Name, StringComparison.Ordinal))
                 return false;
 
             var detectors = GetDetectors(software.Product);
@@ -134,11 +140,9 @@ namespace Net.Chdk.Detectors.Software
 
         protected virtual SoftwareInfo DoGetSoftware(IEnumerable<IProductBinarySoftwareDetector> detectors, byte[] prefix, byte[] inBuffer, IProgress<double> progress, CancellationToken token)
         {
-            var maxThreads = Properties.Settings.Default.MaxThreads;
             var processorCount = Environment.ProcessorCount;
-            var count = maxThreads > 0 && maxThreads < processorCount
-                ? maxThreads
-                : processorCount;
+            var count = MaxThreads > 0 && MaxThreads < processorCount
+                ? MaxThreads : processorCount;
 
             var offsets = GetOffsets();
 
@@ -201,7 +205,7 @@ namespace Net.Chdk.Detectors.Software
         private IEnumerable<IProductBinarySoftwareDetector> GetDetectors()
         {
             return SoftwareDetectors
-                .Where(d => d.CategoryName.Equals(CategoryName, StringComparison.InvariantCulture));
+                .Where(d => d.CategoryName.Equals(CategoryName, StringComparison.Ordinal));
         }
 
         private IEnumerable<IProductBinarySoftwareDetector> GetDetectors(SoftwareProductInfo product)
@@ -210,7 +214,7 @@ namespace Net.Chdk.Detectors.Software
             return productName == null
                 ? GetDetectors()
                 : SoftwareDetectors
-                    .Where(d => d.ProductName.Equals(productName, StringComparison.InvariantCulture));
+                    .Where(d => d.ProductName.Equals(productName, StringComparison.Ordinal));
         }
 
         protected abstract uint?[] GetOffsets();
