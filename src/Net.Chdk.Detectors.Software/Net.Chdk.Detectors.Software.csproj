@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Product>CHIMP</Product>
     <Authors>Dmitry Shechtman</Authors>
     <Copyright>Copyright © 2017 Dmitry Shechtman</Copyright>
@@ -39,13 +39,13 @@
     <PackageReference Include="microsoft.extensions.logging.abstractions" Version="1.1.2" />
     <PackageReference Include="microsoft.extensions.options" Version="1.1.2" />
     <PackageReference Include="Net.Chdk.Detectors.Base" Version="0.1.0-alpha" />
-    <PackageReference Include="Net.Chdk.Detectors.Software.Core" Version="0.1.0-alpha" />
+    <PackageReference Include="Net.Chdk.Detectors.Software.Core" Version="0.2.0-alpha" />
     <PackageReference Include="Net.Chdk.Encoders.Binary.Core" Version="0.1.0-alpha" />
     <PackageReference Include="Net.Chdk.Providers.Boot.Core" Version="0.1.0-alpha" />
     <PackageReference Include="Net.Chdk.Providers.Camera.Core" Version="0.4.0-alpha" />
     <PackageReference Include="Net.Chdk.Providers.Category.Core" Version="0.1.0-alpha" />
     <PackageReference Include="Net.Chdk.Providers.Crypto.Core" Version="0.1.0-alpha" />
-    <PackageReference Include="Net.Chdk.Providers.Software.Core" Version="0.3.1-alpha" />
+    <PackageReference Include="Net.Chdk.Providers.Software.Core" Version="0.4.0-alpha" />
     <PackageReference Include="Net.Chdk.Validators.Core" Version="0.1.0-alpha" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
   </ItemGroup>
